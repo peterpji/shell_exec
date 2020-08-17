@@ -39,35 +39,42 @@ def get_rest_sys_args(index):
         return ''
 
 
-def load_saved_commands():
-    saved_commands_path = os.path.join(os.path.dirname(__file__), 'saved_commands.json')
-    if os.path.isfile(saved_commands_path):
-        with open(saved_commands_path) as saved_commands:
-            command_json = json.load(saved_commands)
-    else:
-        command_json = {}
-    return command_json, saved_commands_path
+class SavedCommands:
+    def __init__(self):
+        def load_saved_commands():
+            if os.path.isfile(self.saved_commands_path):
+                with open(self.saved_commands_path) as commands_file:
+                    saved_commands_dict = json.load(commands_file)
+            else:
+                saved_commands_dict = {}
+            return saved_commands_dict
 
+        self.saved_commands_path = os.path.join(os.path.dirname(__file__), 'saved_commands.json')
+        self.saved_commands_dict = load_saved_commands()
 
-def save_command():
-    command_name = sys.argv[2]
-    command_code = ' '.join(sys.argv[3:])
+    def save_command(self):
+        command_name = sys.argv[2]
+        command_code = ' '.join(sys.argv[3:])
 
-    command_json, saved_commands_path = load_saved_commands()
-    command_json[command_name] = command_code
+        self.saved_commands_dict[command_name] = command_code
 
-    with open(saved_commands_path, 'w') as saved_commands:
-        json.dump(command_json, saved_commands, indent=4)
+        with open(self.saved_commands_path, 'w') as commands_file:
+            json.dump(self.saved_commands_dict, commands_file, indent=4)
 
+    def delete_command(self):
+        command_name = sys.argv[2]
+        del self.saved_commands_dict[command_name]
 
-def delete_command():
-    command_name = sys.argv[2]
-    command_json, saved_commands_path = load_saved_commands()
+        with open(self.saved_commands_path, 'w') as commands_file:
+            json.dump(self.saved_commands_dict, commands_file, indent=4)
 
-    del command_json[command_name]
-
-    with open(saved_commands_path, 'w') as saved_commands:
-        json.dump(command_json, saved_commands)
+    def take_saved_commands_to_use(self, commands):
+        use_commands = {
+            'save-command': self.save_command,
+            'delete-command': self.delete_command,
+        }
+        commands.update(use_commands)
+        commands.update(self.saved_commands_dict)
 
 
 init_logs()
@@ -84,14 +91,7 @@ COMMANDS = {
     # Other
     'test-print': 'echo Working',
     'git-update': 'git checkout master && git stash && git pull && git stash pop && git branch --merged',
-    'save-command': save_command,
-    'delete-command': delete_command,
 }
-
-
-def take_saved_commands_to_use():
-    saved_commands = load_saved_commands()[0]
-    COMMANDS.update(saved_commands)
 
 
 def command_list(as_string=False):
@@ -148,7 +148,7 @@ def run_command(command, confirmation=True):
         return env
 
     def run_command(command):
-        if isinstance(command, types.FunctionType):
+        if isinstance(command, (types.FunctionType, types.MethodType)):
             command()
         elif isinstance(command, str):
             command = command.split(' ')
@@ -190,11 +190,12 @@ def main(arguments):
     If you want to run this from the command line with just the file name without extension, add ".py;" to the environment variable PATHTEXT
     """
 
+    saved_commands = SavedCommands()
+    saved_commands.take_saved_commands_to_use(COMMANDS)
+
     if len(sys.argv) == 1:
         print_help()
         return
-
-    take_saved_commands_to_use()
 
     if sys.argv[1] in COMMANDS:
         command = formulate_command()
