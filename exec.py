@@ -1,6 +1,3 @@
-# Windows PowerShell:   shell | Invoke-Expression
-# Unix Bash:            eval $(python3 shell.py)
-# All:                  python3 shell.py | <bash / cmd / powershell>
 import sys
 import os.path
 import platform
