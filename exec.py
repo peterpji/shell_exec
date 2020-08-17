@@ -81,7 +81,10 @@ init_logs()
 clean_sys_args()
 COMMANDS = {
     # Setup
-    'python-setup': 'python -m pip install --upgrade pip & python -m pip install --upgrade virtualenv pandas jupyter notebook aiohttp requests matplotlib',
+    'python-setup': [
+        'python -m pip install --upgrade pip',
+        'python -m pip install --upgrade virtualenv numpy pandas jupyter notebook aiohttp requests matplotlib',
+    ],
     # Docker
     'udev': 'docker attach ubuntu-dev',
     'udev-bash': 'docker exec -it ubuntu-dev /bin/bash',
@@ -90,7 +93,7 @@ COMMANDS = {
     'udev-build': 'docker-compose --file C:/Users/peter/OneDrive/MyOneDrive/Code/docker/ubuntu_dev/docker-compose.yml build',
     # Other
     'test-print': 'echo Working',
-    'git-update': 'git checkout master && git stash && git pull && git stash pop && git branch --merged',
+    'git-update': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
 }
 
 
@@ -153,7 +156,7 @@ def run_command(command, confirmation=True):
             command = command.split(' ')
             subprocess.run(  # pylint: disable=subprocess-run-check
                 command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, env=patch_environ(), shell=True
-            )
+            ).check_returncode()
         elif isinstance(command, list):
             for elem in command:
                 run_command(elem)
