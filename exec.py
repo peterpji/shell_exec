@@ -13,7 +13,9 @@ import argparse
 
 def init_logs():
     log_file_path = os.path.join(os.path.dirname(__file__), 'logs', 'exec.log')
-    logging.basicConfig(filename=log_file_path, filemode="a", format="%(levelname)s:%(name)s:%(asctime)s:%(message)s", datefmt='%Y-%m-%d %H:%M:%S', level='INFO')
+    logging.basicConfig(
+        filename=log_file_path, filemode="a", format="%(levelname)s:%(name)s:%(asctime)s:%(message)s", datefmt='%Y-%m-%d %H:%M:%S', level='INFO'
+    )
     logging.info('##### NEW RUN #####')
     logging.info('New run args: %s', sys.argv)
 
@@ -125,7 +127,7 @@ def formulate_command():
 
 
 def run_command(command, confirmation=True):
-    def confirmation_from_user():
+    def ask_confirmation_from_user():
         conf = ''
         while conf.lower() not in ['y', 'n']:
             conf = input(command + '\nDo you want to run? (y/n) ')
@@ -145,20 +147,27 @@ def run_command(command, confirmation=True):
 
         return env
 
+    def run_command(command):
+        if isinstance(command, types.FunctionType):
+            command()
+        elif isinstance(command, str):
+            command = command.split(' ')
+            subprocess.run(  # pylint: disable=subprocess-run-check
+                command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, env=patch_environ(), shell=True
+            )
+        elif isinstance(command, list):
+            for elem in command:
+                run_command(elem)
+
     if isinstance(command, str):
         command = command + get_rest_sys_args(2)
 
-    if confirmation and not confirmation_from_user():
+    if confirmation and not ask_confirmation_from_user():
         logging.info('Command cancelled')
         return
 
     logging.info('Running: %s', command)
-    if isinstance(command, types.FunctionType):
-        command()
-        return
-
-    command = command.split(' ')
-    subprocess.run(command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, env=patch_environ(), shell=True)  # pylint: disable=subprocess-run-check
+    run_command(command)
 
 
 def print_command(command):
