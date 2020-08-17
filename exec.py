@@ -158,6 +158,8 @@ def run_command(command, confirmation=True):
         elif isinstance(command, list):
             for elem in command:
                 run_command(elem)
+        else:
+            logging.warning('Unknown command type')
 
     if isinstance(command, str):
         command = command + get_rest_sys_args(2)
