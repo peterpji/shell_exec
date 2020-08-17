@@ -20,11 +20,6 @@ def init_logs():
     logging.info('New run args: %s', sys.argv)
 
 
-def clean_sys_args():
-    if 'exec-py' in sys.argv:
-        sys.argv.pop(sys.argv.index('run-py'))
-
-
 def get_sys_arg(index):
     if len(sys.argv) >= index + 1:
         return sys.argv[index]
@@ -78,7 +73,6 @@ class SavedCommands:
 
 
 init_logs()
-clean_sys_args()
 COMMANDS = {
     # Setup
     'python-setup': [
