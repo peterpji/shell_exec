@@ -115,7 +115,8 @@ def handle_unrecognized_command():
 
 def formulate_command():
     def localize_command(command):
-        command = command.replace('~', '%userprofile%')
+        if platform.system() == 'Windows':
+            command = command.replace('~', '%userprofile%')
         return command
 
     command = COMMANDS[sys.argv[1]]
@@ -139,9 +140,7 @@ def run_command(command, confirmation=True):
 
     def patch_environ():
         env = os.environ.copy()
-
         system32 = os.path.join(os.environ['SystemRoot'], 'SysNative' if platform.architecture()[0] == '32bit' else 'System32')
-        # ssh_path = os.path.join(system32, 'OpenSSH', 'ssh.exe')
         ssh_path = os.path.join(system32, 'OpenSSH')
         env['PATH'] += ';' + ssh_path + ';'
 
