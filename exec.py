@@ -69,6 +69,7 @@ COMMANDS = {
     'udev-build': 'docker-compose --file C:/Users/peter/OneDrive/MyOneDrive/Code/docker/ubuntu_dev/docker-compose.yml build',
     # Other
     'test-print': 'echo Working',
+    'test-print-list': ['echo Working once,', 'echo Working twice'],
     'git-update': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
 }
 
