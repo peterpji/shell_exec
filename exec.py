@@ -8,6 +8,25 @@ import json
 import argparse
 
 
+COMMANDS = {
+    # Setup
+    'python-setup': [
+        'python -m pip install --upgrade pip',
+        'python -m pip install --upgrade virtualenv numpy pandas jupyter notebook aiohttp requests matplotlib',
+    ],
+    # Docker
+    'udev': 'docker attach ubuntu-dev',
+    'udev-bash': 'docker exec -it ubuntu-dev /bin/bash',
+    'udev-up': 'docker-compose --file C:/Users/peter/OneDrive/MyOneDrive/Code/docker/ubuntu_dev/docker-compose.yml up -d --force-recreate',
+    'udev-down': 'docker-compose --file C:/Users/peter/OneDrive/MyOneDrive/Code/docker/ubuntu_dev/docker-compose.yml down',
+    'udev-build': 'docker-compose --file C:/Users/peter/OneDrive/MyOneDrive/Code/docker/ubuntu_dev/docker-compose.yml build',
+    # Other
+    'test-print': 'echo Working',
+    'test-print-list': ['echo Working once,', 'echo Working twice'],
+    'git-update': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
+}
+
+
 def init_logging_to_file():
     log_file_path = os.path.join(os.path.dirname(__file__), 'logs', 'exec.log')
     logging.basicConfig(
@@ -53,25 +72,6 @@ class SavedCommands:
         }
         commands.update(use_commands)
         commands.update(self.saved_commands_dict)
-
-
-COMMANDS = {
-    # Setup
-    'python-setup': [
-        'python -m pip install --upgrade pip',
-        'python -m pip install --upgrade virtualenv numpy pandas jupyter notebook aiohttp requests matplotlib',
-    ],
-    # Docker
-    'udev': 'docker attach ubuntu-dev',
-    'udev-bash': 'docker exec -it ubuntu-dev /bin/bash',
-    'udev-up': 'docker-compose --file C:/Users/peter/OneDrive/MyOneDrive/Code/docker/ubuntu_dev/docker-compose.yml up -d --force-recreate',
-    'udev-down': 'docker-compose --file C:/Users/peter/OneDrive/MyOneDrive/Code/docker/ubuntu_dev/docker-compose.yml down',
-    'udev-build': 'docker-compose --file C:/Users/peter/OneDrive/MyOneDrive/Code/docker/ubuntu_dev/docker-compose.yml build',
-    # Other
-    'test-print': 'echo Working',
-    'test-print-list': ['echo Working once,', 'echo Working twice'],
-    'git-update': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
-}
 
 
 def command_list(as_string=False):
