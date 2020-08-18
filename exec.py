@@ -27,17 +27,12 @@ COMMANDS = {
 }
 
 
-def init_logging_to_file():
-    log_file_path = os.path.join(os.path.dirname(__file__), 'logs', 'exec.log')
-    logging.basicConfig(
-        filename=log_file_path, filemode="a", format="%(levelname)s:%(name)s:%(asctime)s:%(message)s", datefmt='%Y-%m-%d %H:%M:%S', level='INFO'
-    )
-    logging.info('##### NEW RUN #####')
-    logging.info('New run args: %s', sys.argv)
-
-
 class SavedCommands:
-    def __init__(self):
+    def __init__(self, commands_dict):
+        """
+        Initialization adds save_command and delete_command methods to the commands_dict
+        """
+
         def load_saved_commands():
             if os.path.isfile(self.saved_commands_path):
                 with open(self.saved_commands_path) as commands_file:
@@ -48,6 +43,7 @@ class SavedCommands:
 
         self.saved_commands_path = os.path.join(os.path.dirname(__file__), 'saved_commands.json')
         self.saved_commands_dict = load_saved_commands()
+        self._take_saved_commands_to_use(commands_dict)
 
     def save_command(self, arguments):
         command_name = arguments.command_args[0]
@@ -65,13 +61,13 @@ class SavedCommands:
         with open(self.saved_commands_path, 'w') as commands_file:
             json.dump(self.saved_commands_dict, commands_file, indent=4)
 
-    def take_saved_commands_to_use(self, commands):
+    def _take_saved_commands_to_use(self, commands_dict):
         use_commands = {
             'save-command': self.save_command,
             'delete-command': self.delete_command,
         }
-        commands.update(use_commands)
-        commands.update(self.saved_commands_dict)
+        commands_dict.update(use_commands)
+        commands_dict.update(self.saved_commands_dict)
 
 
 def command_list(as_string=False):
@@ -85,6 +81,10 @@ def command_list(as_string=False):
 
 
 def handle_command(command, arguments):
+    """
+    This function handles printing and running commands as well as asking for user confirmation if necessary.
+    """
+
     def print_command(command, args):
         if isinstance(command, (types.FunctionType, types.MethodType)):
             print(f'Python function: {command}; Args: {args}')
@@ -146,11 +146,22 @@ def handle_command(command, arguments):
 
 def main(arguments):
     """
-    WARNING: This script does not automatically validate shell inputs and thus should only be used locally.
+    WARNING: This script exesutes subprocess with a shell.
+    It does not automatically validate shell inputs and thus should only be used locally.
+    Otherwise this opens up a shell command injection vulnerability.
 
-    Notes:
-    If you want to run this from the command line with just the file name without extension, add ".py;" to the environment variable PATHTEXT
+    Use tips:
+    If you need more help, run this script with --help flag.
+    On Windows: If you want to run this from the command line with just the file name without extension, add ".py;" to the environment variable PATHTEXT
     """
+
+    def init_logging_to_file():
+        log_file_path = os.path.join(os.path.dirname(__file__), 'logs', 'exec.log')
+        logging.basicConfig(
+            filename=log_file_path, filemode="a", format="%(levelname)s:%(name)s:%(asctime)s:%(message)s", datefmt='%Y-%m-%d %H:%M:%S', level='INFO'
+        )
+        logging.info('##### NEW RUN #####')
+        logging.info('New run args: %s', sys.argv)
 
     def print_help():
         print(f'This is {__file__}')
@@ -161,6 +172,10 @@ def main(arguments):
         print(f'Unrecognized command. Available commands: {command_list(as_string=True)}\n')
 
     def map_command(command_name):
+        """
+        Maps command names to the actual commands via COMMANDS dict. Tries to replace platform specific commands if necessary.
+        """
+
         def localize_command(command):
             if platform.system() == 'Windows':
                 command = command.replace('~', '%userprofile%')
@@ -172,8 +187,7 @@ def main(arguments):
         return command
 
     init_logging_to_file()
-    saved_commands = SavedCommands()
-    saved_commands.take_saved_commands_to_use(COMMANDS)
+    SavedCommands(COMMANDS)
 
     if not arguments.command_name:
         print_help()
