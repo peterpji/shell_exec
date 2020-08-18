@@ -1,2 +1,3 @@
 # TODO
-help texts for command
+* Help texts for command
+* Tests
