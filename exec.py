@@ -69,7 +69,6 @@ class SavedCommands:
         commands.update(self.saved_commands_dict)
 
 
-init_logs()
 COMMANDS = {
     # Setup
     'python-setup': [
@@ -101,19 +100,20 @@ def command_list(as_string=False):
 def print_help():
     sys.stdout.write(f'This is {__file__}\n')
     sys.stdout.write(f'Available commands: {command_list(as_string=True)}\n')
+    sys.stdout.write('For more information, use flag --help\n\n')
 
 
 def handle_unrecognized_command():
-    sys.stdout.write(f'Unrecognized command. Available commands: {command_list(as_string=True)}\n')
+    sys.stdout.write(f'Unrecognized command. Available commands: {command_list(as_string=True)}\n\n')
 
 
-def formulate_command():
+def map_command(command_name):
     def localize_command(command):
         if platform.system() == 'Windows':
             command = command.replace('~', '%userprofile%')
         return command
 
-    command = COMMANDS[sys.argv[1]]
+    command = COMMANDS[command_name]
 
     if isinstance(command, str):
         command = localize_command(command)
@@ -121,7 +121,7 @@ def formulate_command():
     return command
 
 
-def run_command(command, confirmation=True):
+def handle_command(command, confirmation=True):
     def ask_confirmation_from_user():
         conf = ''
         while conf.lower() not in ['y', 'n']:
@@ -165,13 +165,12 @@ def run_command(command, confirmation=True):
     run_command(command)
 
 
-def print_command(command):
-    if isinstance(command, types.FunctionType):
+def print_command(command, args):
+    if isinstance(command, (types.FunctionType, types.MethodType)):
         print(f'Python function {command}')
     else:
-        del sys.argv[sys.argv.index('--print')]
-        if len(sys.argv) > 2:
-            command = ' '.join([command] + sys.argv[2:])
+        if args:
+            command = ' '.join([command] + args)
         sys.stdout.write(command)
 
 
@@ -183,19 +182,20 @@ def main(arguments):
     If you want to run this from the command line with just the file name without extension, add ".py;" to the environment variable PATHTEXT
     """
 
+    init_logs()
     saved_commands = SavedCommands()
     saved_commands.take_saved_commands_to_use(COMMANDS)
 
-    if len(sys.argv) == 1:
+    if not arguments.command_name:
         print_help()
         return
 
-    if sys.argv[1] in COMMANDS:
-        command = formulate_command()
+    if arguments.command_name in COMMANDS:
+        command = map_command(arguments.command_name)
         if arguments.print:
-            print_command(command)
+            print_command(command, arguments.command_args)
         else:
-            run_command(command, confirmation=arguments.confirmation)
+            handle_command(command, confirmation=arguments.confirmation)
     else:
         handle_unrecognized_command()
 
@@ -205,5 +205,8 @@ if __name__ == "__main__":
     parser.description = f'This is a tool for abstracting long to write or complicated shell commands. Available commands: {command_list()}'
     parser.add_argument('--print', action='store_true', default=False, help='Print out the command instead of executing')
     parser.add_argument('--confirmation', action='store_true', default=False, help='Print the command and ask for confirmation before executing')
-    arguments, _ = parser.parse_known_args()
+    parser.add_argument('command_name', nargs='?')
+    parser.add_argument('command_args', nargs='*')
+    arguments = parser.parse_args()
+    logging.debug(arguments)
     main(arguments)
