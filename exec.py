@@ -84,30 +84,6 @@ def command_list(as_string=False):
     return commands
 
 
-def print_help():
-    print(f'This is {__file__}')
-    print(f'Available commands: {command_list(as_string=True)}')
-    print('For more information, use flag --help\n')
-
-
-def handle_unrecognized_command():
-    print(f'Unrecognized command. Available commands: {command_list(as_string=True)}\n')
-
-
-def map_command(command_name):
-    def localize_command(command):
-        if platform.system() == 'Windows':
-            command = command.replace('~', '%userprofile%')
-        return command
-
-    command = COMMANDS[command_name]
-
-    if isinstance(command, str):
-        command = localize_command(command)
-
-    return command
-
-
 def handle_command(command, arguments):
     def print_command(command, args):
         if isinstance(command, (types.FunctionType, types.MethodType)):
@@ -176,6 +152,25 @@ def main(arguments):
     If you want to run this from the command line with just the file name without extension, add ".py;" to the environment variable PATHTEXT
     """
 
+    def print_help():
+        print(f'This is {__file__}')
+        print(f'Available commands: {command_list(as_string=True)}')
+        print('For more information, use flag --help\n')
+
+    def handle_unrecognized_command():
+        print(f'Unrecognized command. Available commands: {command_list(as_string=True)}\n')
+
+    def map_command(command_name):
+        def localize_command(command):
+            if platform.system() == 'Windows':
+                command = command.replace('~', '%userprofile%')
+            return command
+
+        command = COMMANDS[command_name]
+        if isinstance(command, str):
+            command = localize_command(command)
+        return command
+
     init_logging_to_file()
     saved_commands = SavedCommands()
     saved_commands.take_saved_commands_to_use(COMMANDS)
@@ -191,12 +186,16 @@ def main(arguments):
         handle_unrecognized_command()
 
 
-if __name__ == "__main__":
+def parse_sys_argv():
     parser = argparse.ArgumentParser()
     parser.description = f'This is a tool for abstracting long to write or complicated shell commands. Available commands: {command_list()}'
     parser.add_argument('--print', action='store_true', default=False, help='Print out the command instead of executing')
     parser.add_argument('--confirmation', action='store_true', default=False, help='Print the command and ask for confirmation before executing')
     parser.add_argument('command_name', nargs='?')
     parser.add_argument('command_args', nargs='*')
-    arguments = parser.parse_args()
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    arguments = parse_sys_argv()
     main(arguments)
