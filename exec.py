@@ -8,7 +8,7 @@ import json
 import argparse
 
 
-def init_logs():
+def init_logging_to_file():
     log_file_path = os.path.join(os.path.dirname(__file__), 'logs', 'exec.log')
     logging.basicConfig(
         filename=log_file_path, filemode="a", format="%(levelname)s:%(name)s:%(asctime)s:%(message)s", datefmt='%Y-%m-%d %H:%M:%S', level='INFO'
@@ -139,8 +139,10 @@ def handle_command(command, arguments):
 
     def run_command(command):
         if isinstance(command, (types.FunctionType, types.MethodType)):
+            logging.info('Running: %s', command)
             command(arguments)
         elif isinstance(command, str):
+            logging.info('Running: %s', command)
             command = command.split(' ')
             subprocess.run(  # pylint: disable=subprocess-run-check
                 command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, env=patch_environ(), shell=True
@@ -162,7 +164,6 @@ def handle_command(command, arguments):
         logging.info('Command cancelled')
         return
 
-    logging.info('Running: %s', command)
     run_command(command)
 
 
@@ -174,7 +175,7 @@ def main(arguments):
     If you want to run this from the command line with just the file name without extension, add ".py;" to the environment variable PATHTEXT
     """
 
-    init_logs()
+    init_logging_to_file()
     saved_commands = SavedCommands()
     saved_commands.take_saved_commands_to_use(COMMANDS)
 
@@ -197,5 +198,4 @@ if __name__ == "__main__":
     parser.add_argument('command_name', nargs='?')
     parser.add_argument('command_args', nargs='*')
     arguments = parser.parse_args()
-    logging.debug(arguments)
     main(arguments)
