@@ -1,3 +1,4 @@
 *
 !.gitignore
-! exec.py
+!exec.py
+!issues.md
