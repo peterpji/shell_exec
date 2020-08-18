@@ -17,20 +17,6 @@ def init_logs():
     logging.info('New run args: %s', sys.argv)
 
 
-def get_sys_arg(index):
-    if len(sys.argv) >= index + 1:
-        return sys.argv[index]
-    else:
-        return ''
-
-
-def get_rest_sys_args(index):
-    if len(sys.argv) >= index + 1:
-        return ' ' + ' '.join(sys.argv[index:])
-    else:
-        return ''
-
-
 class SavedCommands:
     def __init__(self):
         def load_saved_commands():
@@ -44,17 +30,17 @@ class SavedCommands:
         self.saved_commands_path = os.path.join(os.path.dirname(__file__), 'saved_commands.json')
         self.saved_commands_dict = load_saved_commands()
 
-    def save_command(self):
-        command_name = sys.argv[2]
-        command_code = ' '.join(sys.argv[3:])
+    def save_command(self, arguments):
+        command_name = arguments.command_args[0]
+        command_code = ' '.join(arguments.command_args[1:])
 
         self.saved_commands_dict[command_name] = command_code
 
         with open(self.saved_commands_path, 'w') as commands_file:
             json.dump(self.saved_commands_dict, commands_file, indent=4)
 
-    def delete_command(self):
-        command_name = sys.argv[2]
+    def delete_command(self, arguments):
+        command_name = arguments.command_args[0]
         del self.saved_commands_dict[command_name]
 
         with open(self.saved_commands_path, 'w') as commands_file:
@@ -98,13 +84,13 @@ def command_list(as_string=False):
 
 
 def print_help():
-    sys.stdout.write(f'This is {__file__}\n')
-    sys.stdout.write(f'Available commands: {command_list(as_string=True)}\n')
-    sys.stdout.write('For more information, use flag --help\n\n')
+    print(f'This is {__file__}')
+    print(f'Available commands: {command_list(as_string=True)}')
+    print('For more information, use flag --help\n')
 
 
 def handle_unrecognized_command():
-    sys.stdout.write(f'Unrecognized command. Available commands: {command_list(as_string=True)}\n\n')
+    print(f'Unrecognized command. Available commands: {command_list(as_string=True)}\n')
 
 
 def map_command(command_name):
@@ -121,14 +107,25 @@ def map_command(command_name):
     return command
 
 
-def handle_command(command, confirmation=True):
-    def ask_confirmation_from_user():
+def handle_command(command, arguments):
+    def print_command(command, args):
+        if isinstance(command, (types.FunctionType, types.MethodType)):
+            print(f'Python function: {command}; Args: {args}')
+        else:
+            print(command)
+
+    def ask_confirmation_from_user(command, args):
         conf = ''
         while conf.lower() not in ['y', 'n']:
-            conf = input(command + '\nDo you want to run? (y/n) ')
+            print_command(command, args)
+            conf = input('Do you want to run? (y/n): ')
 
             if conf.lower() == 'n':
-                sys.stdout.write('Command cancelled\n')
+                print('Command cancelled')
+            elif conf.lower() == 'y':
+                print('Running command')
+            else:
+                print('Input not in (y/n)')
 
         return conf.lower() == 'y'
 
@@ -142,7 +139,7 @@ def handle_command(command, confirmation=True):
 
     def run_command(command):
         if isinstance(command, (types.FunctionType, types.MethodType)):
-            command()
+            command(arguments)
         elif isinstance(command, str):
             command = command.split(' ')
             subprocess.run(  # pylint: disable=subprocess-run-check
@@ -155,23 +152,18 @@ def handle_command(command, confirmation=True):
             logging.warning('Unknown command type')
 
     if isinstance(command, str):
-        command = command + get_rest_sys_args(2)
+        command = ' '.join([command] + arguments.command_args)
 
-    if confirmation and not ask_confirmation_from_user():
+    if arguments.print:
+        print_command(command, arguments.command_args)
+        return
+
+    if arguments.confirmation and not ask_confirmation_from_user(command, arguments.command_args):
         logging.info('Command cancelled')
         return
 
     logging.info('Running: %s', command)
     run_command(command)
-
-
-def print_command(command, args):
-    if isinstance(command, (types.FunctionType, types.MethodType)):
-        print(f'Python function {command}')
-    else:
-        if args:
-            command = ' '.join([command] + args)
-        sys.stdout.write(command)
 
 
 def main(arguments):
@@ -192,10 +184,7 @@ def main(arguments):
 
     if arguments.command_name in COMMANDS:
         command = map_command(arguments.command_name)
-        if arguments.print:
-            print_command(command, arguments.command_args)
-        else:
-            handle_command(command, confirmation=arguments.confirmation)
+        handle_command(command, arguments)
     else:
         handle_unrecognized_command()
 
