@@ -12,17 +12,17 @@ COMMANDS = {
     # Setup
     'python-setup': [
         'python -m pip install --upgrade pip',
-        'python -m pip install --upgrade virtualenv numpy pandas jupyter notebook aiohttp requests matplotlib',
+        'python -m pip install --upgrade pylint black virtualenv requests pandas jupyter aiohttp matplotlib',
     ],
     # Docker
     'udev': 'docker attach ubuntu-dev',
     'udev-bash': 'docker exec -it ubuntu-dev /bin/bash',
-    'udev-up': 'docker-compose --file C:/Users/peter/OneDrive/MyOneDrive/Code/docker/ubuntu_dev/docker-compose.yml up -d --force-recreate',
+    'udev-up': 'docker-compose --file C:/Users/peter/OneDrive/MyOneDrive/Code/docker/ubuntu_dev/docker-compose.yml up -d --force-recreate --always-recreate-deps',
     'udev-down': 'docker-compose --file C:/Users/peter/OneDrive/MyOneDrive/Code/docker/ubuntu_dev/docker-compose.yml down',
     'udev-build': 'docker-compose --file C:/Users/peter/OneDrive/MyOneDrive/Code/docker/ubuntu_dev/docker-compose.yml build',
     # Other
     'test-print': 'echo Working',
-    'test-print-list': ['echo Working once,', 'echo Working twice'],
+    'test-print-list': ['echo Working once', 'echo Working twice'],
     'git-update': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
 }
 
@@ -144,7 +144,7 @@ def handle_command(command, arguments):
     run_command(command)
 
 
-def main(arguments):
+def main():
     """
     WARNING: This script exesutes subprocess with a shell.
     It does not automatically validate shell inputs and thus should only be used locally.
@@ -186,6 +186,7 @@ def main(arguments):
             command = localize_command(command)
         return command
 
+    arguments = parse_sys_argv()
     init_logging_to_file()
     SavedCommands(COMMANDS)
 
@@ -207,9 +208,10 @@ def parse_sys_argv():
     parser.add_argument('--confirmation', action='store_true', default=False, help='Print the command and ask for confirmation before executing')
     parser.add_argument('command_name', nargs='?')
     parser.add_argument('command_args', nargs='*')
-    return parser.parse_args()
+    arguments, unknown_kwargs = parser.parse_known_args()
+    arguments.command_args += unknown_kwargs
+    return arguments
 
 
 if __name__ == "__main__":
-    arguments = parse_sys_argv()
-    main(arguments)
+    main()
