@@ -110,9 +110,11 @@ def handle_command(command, arguments):
 
     def patch_environ():
         env = os.environ.copy()
-        system32 = os.path.join(os.environ['SystemRoot'], 'SysNative' if platform.architecture()[0] == '32bit' else 'System32')
-        ssh_path = os.path.join(system32, 'OpenSSH')
-        env['PATH'] += ';' + ssh_path + ';'
+
+        if platform.system() == 'Windows':
+            system32 = os.path.join(os.environ['SystemRoot'], 'SysNative' if platform.architecture()[0] == '32bit' else 'System32')
+            ssh_path = os.path.join(system32, 'OpenSSH')
+            env['PATH'] += ';' + ssh_path
 
         return env
 
