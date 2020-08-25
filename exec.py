@@ -7,6 +7,8 @@ import types
 import json
 import argparse
 
+udev_yaml = os.path.join(os.path.dirname(__file__), '..', 'docker', 'ubuntu_dev', 'docker-compose.yml')
+
 
 COMMANDS = {
     # Setup
@@ -17,9 +19,9 @@ COMMANDS = {
     # Docker
     'udev': 'docker attach ubuntu-dev',
     'udev-bash': 'docker exec -it ubuntu-dev /bin/bash',
-    'udev-up': 'docker-compose --file C:/Users/peter/OneDrive/MyOneDrive/Code/docker/ubuntu_dev/docker-compose.yml up -d --force-recreate --always-recreate-deps',
-    'udev-down': 'docker-compose --file C:/Users/peter/OneDrive/MyOneDrive/Code/docker/ubuntu_dev/docker-compose.yml down',
-    'udev-build': 'docker-compose --file C:/Users/peter/OneDrive/MyOneDrive/Code/docker/ubuntu_dev/docker-compose.yml build',
+    'udev-up': f'docker-compose --file {udev_yaml} up -d --force-recreate --always-recreate-deps',
+    'udev-down': f'docker-compose --file {udev_yaml} down',
+    'udev-build': f'docker-compose --file {udev_yaml} build',
     # Other
     'test-print': 'echo Working',
     'test-print-list': ['echo Working once', 'echo Working twice'],
