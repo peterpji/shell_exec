@@ -7,26 +7,32 @@ import types
 import json
 import argparse
 
-udev_yaml = os.path.join(os.path.dirname(__file__), '..', 'docker', 'ubuntu_dev', 'docker-compose.yml')
+
+def generate_commands():
+    udev_yaml = os.path.join(os.path.dirname(__file__), '..', 'docker', 'ubuntu_dev', 'docker-compose.yml')
+
+    commands = {
+        # Setup
+        'python-setup': [
+            'python -m pip install --upgrade pip',
+            'python -m pip install --upgrade pylint black virtualenv requests pandas jupyter aiohttp matplotlib',
+        ],
+        # Docker
+        'udev': 'docker attach ubuntu-dev',
+        'udev-bash': 'docker exec -it ubuntu-dev /bin/bash',
+        'udev-up': f'docker-compose --file {udev_yaml} up -d --force-recreate --always-recreate-deps',
+        'udev-down': f'docker-compose --file {udev_yaml} down',
+        'udev-build': f'docker-compose --file {udev_yaml} build',
+        # Other
+        'test-print': 'echo Working',
+        'test-print-list': ['echo Working once', 'echo Working twice'],
+        'git-update': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
+    }
+
+    return commands
 
 
-COMMANDS = {
-    # Setup
-    'python-setup': [
-        'python -m pip install --upgrade pip',
-        'python -m pip install --upgrade pylint black virtualenv requests pandas jupyter aiohttp matplotlib',
-    ],
-    # Docker
-    'udev': 'docker attach ubuntu-dev',
-    'udev-bash': 'docker exec -it ubuntu-dev /bin/bash',
-    'udev-up': f'docker-compose --file {udev_yaml} up -d --force-recreate --always-recreate-deps',
-    'udev-down': f'docker-compose --file {udev_yaml} down',
-    'udev-build': f'docker-compose --file {udev_yaml} build',
-    # Other
-    'test-print': 'echo Working',
-    'test-print-list': ['echo Working once', 'echo Working twice'],
-    'git-update': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
-}
+COMMANDS = generate_commands()
 
 
 class SavedCommands:
