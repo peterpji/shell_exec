@@ -165,6 +165,17 @@ def main():
     On Windows: If you want to run this from the command line with just the file name without extension, add ".py;" to the environment variable PATHTEXT
     """
 
+    def parse_sys_argv():
+        parser = argparse.ArgumentParser()
+        parser.description = f'This is a tool for abstracting long to write or complicated shell commands. Available commands: {command_list()}'
+        parser.add_argument('--print', action='store_true', default=False, help='Print out the command instead of executing')
+        parser.add_argument('--confirmation', action='store_true', default=False, help='Print the command and ask for confirmation before executing')
+        parser.add_argument('command_name', nargs='?')
+        parser.add_argument('command_args', nargs='*')
+        arguments, unknown_kwargs = parser.parse_known_args()
+        arguments.command_args += unknown_kwargs
+        return arguments
+
     def init_logging_to_file():
         log_file_path = os.path.join(os.path.dirname(__file__), 'logs', 'exec.log')
         logging.basicConfig(
@@ -209,18 +220,6 @@ def main():
         handle_command(command, arguments)
     else:
         handle_unrecognized_command()
-
-
-def parse_sys_argv():
-    parser = argparse.ArgumentParser()
-    parser.description = f'This is a tool for abstracting long to write or complicated shell commands. Available commands: {command_list()}'
-    parser.add_argument('--print', action='store_true', default=False, help='Print out the command instead of executing')
-    parser.add_argument('--confirmation', action='store_true', default=False, help='Print the command and ask for confirmation before executing')
-    parser.add_argument('command_name', nargs='?')
-    parser.add_argument('command_args', nargs='*')
-    arguments, unknown_kwargs = parser.parse_known_args()
-    arguments.command_args += unknown_kwargs
-    return arguments
 
 
 if __name__ == "__main__":
