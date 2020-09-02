@@ -156,7 +156,7 @@ def handle_command(command, arguments):
 
 def main():
     """
-    WARNING: This script exesutes subprocess with a shell.
+    WARNING: This script executes subprocess with a shell.
     It does not automatically validate shell inputs and thus should only be used locally.
     Otherwise this opens up a shell command injection vulnerability.
 
@@ -186,6 +186,7 @@ def main():
 
     def print_help():
         print(f'This is {__file__}')
+        print()
         print(f'Available commands: {command_list(as_string=True)}')
         print('For more information, use flag --help\n')
 
