@@ -131,9 +131,13 @@ def handle_command(command, arguments):
         elif isinstance(command, str):
             logging.info('Running: %s', command)
             command = command.split(' ')
-            subprocess.run(  # pylint: disable=subprocess-run-check
-                command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, env=patch_environ(), shell=True
-            ).check_returncode()
+            try:
+                subprocess.run(  # pylint: disable=subprocess-run-check
+                    command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, env=patch_environ(), shell=True
+                ).check_returncode()
+            except subprocess.CalledProcessError as e:
+                logging.error(str(e))
+                sys.exit(e.returncode)
         elif isinstance(command, list):
             for elem in command:
                 run_command(elem)
