@@ -136,8 +136,8 @@ def handle_command(command, arguments):
                     command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, env=patch_environ(), shell=True
                 ).check_returncode()
             except subprocess.CalledProcessError as e:
-                logging.error(str(e))
-                sys.exit(e.returncode)
+                sys.tracebacklimit = 0
+                raise e
         elif isinstance(command, list):
             for elem in command:
                 run_command(elem)
