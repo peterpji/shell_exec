@@ -135,7 +135,7 @@ def handle_command(command, arguments):
                 subprocess.run(  # pylint: disable=subprocess-run-check
                     command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, env=patch_environ(), shell=True
                 ).check_returncode()
-            except subprocess.CalledProcessError as e:
+            except (subprocess.CalledProcessError, KeyboardInterrupt) as e:
                 sys.tracebacklimit = 0
                 raise e
         elif isinstance(command, list):
