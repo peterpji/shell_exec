@@ -7,9 +7,11 @@ import types
 import json
 import argparse
 
+FILE_DIR = os.path.dirname(__file__)
 
-def generate_commands():
-    udev_yaml = os.path.join(os.path.dirname(__file__), '..', 'docker', 'ubuntu_dev', 'docker-compose.yml')
+
+def generate_commands() -> dict:
+    udev_yaml = os.path.join(FILE_DIR, '..', 'docker', 'ubuntu_dev', 'docker-compose.yml')
 
     commands = {
         # Setup
@@ -23,11 +25,16 @@ def generate_commands():
         'udev-up': f'docker-compose --file {udev_yaml} up -d --force-recreate --always-recreate-deps',
         'udev-down': f'docker-compose --file {udev_yaml} down',
         'udev-build': f'docker-compose --file {udev_yaml} build',
+        # Code quality
+        'bandit': f'bandit -r {FILE_DIR} --skip B101,B322 --format txt',
+        'pyflakes': f'pyflakes {FILE_DIR}',
         # Other
         'test-print': 'echo Working',
         'test-print-list': ['echo Working once', 'echo Working twice'],
         'git-update': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
     }
+
+    commands['quality'] = [commands['pyflakes'], commands['bandit']]
 
     return commands
 
