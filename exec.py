@@ -29,6 +29,7 @@ def generate_commands() -> dict:
         'bandit': f'bandit -r {FILE_DIR} --skip B101,B322 --format txt',
         'pyflakes': f'pyflakes {FILE_DIR}',
         'safety': 'safety check --full-report',
+        'flake8': f'flake8 {FILE_DIR} --select F,C',
         # Other
         'test-print': 'echo Working',
         'test-print-list': ['echo Working once', 'echo Working twice'],
