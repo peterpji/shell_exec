@@ -1,4 +1,4 @@
-*
-!.gitignore
-!exec.py
-!issues.md
+*.json
+old_drafts/
+logs/
+__pycache__/
