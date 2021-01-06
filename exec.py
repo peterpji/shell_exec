@@ -15,28 +15,31 @@ def generate_commands() -> dict:
 
     commands = {
         # Setup
-        'python-setup': [
-            'python -m pip install --upgrade pip',
-            'python -m pip install --upgrade pylint black virtualenv requests pandas jupyter aiohttp matplotlib',
-        ],
+        'python-setup': {
+            'command': [
+                'python -m pip install --upgrade pip',
+                'python -m pip install --upgrade pylint black virtualenv requests pandas jupyter aiohttp matplotlib',
+            ]
+        },
         # Docker
-        'udev': 'docker attach ubuntu-dev',
-        'udev-bash': 'docker exec -it ubuntu-dev /bin/bash',
-        'udev-up': f'docker-compose --file {udev_yaml} up -d --force-recreate --always-recreate-deps',
-        'udev-down': f'docker-compose --file {udev_yaml} down',
-        'udev-build': f'docker-compose --file {udev_yaml} build',
+        'udev': {'command': 'docker attach ubuntu-dev'},
+        'udev-bash': {'command': 'docker exec -it ubuntu-dev /bin/bash'},
+        'udev-up': {'command': f'docker-compose --file {udev_yaml} up -d --force-recreate --always-recreate-deps'},
+        'udev-down': {'command': f'docker-compose --file {udev_yaml} down'},
+        'udev-build': {'command': f'docker-compose --file {udev_yaml} build'},
+        'udev-exec': {'command': 'docker exec -it ubuntu-dev'},
+        'udev-compose': {'command': f'docker-compose --file {udev_yaml}'},
         # Code quality
-        'bandit': f'bandit -r {FILE_DIR} --skip B101,B322 --format txt',
-        'pyflakes': f'pyflakes {FILE_DIR}',
-        'safety': 'safety check --full-report',
-        'flake8': f'flake8 {FILE_DIR} --select F,C',
+        'bandit': {'command': f'bandit -r {FILE_DIR} --skip B101,B322 --format txt'},
+        'flake8': {'command': f'flake8 {FILE_DIR} --select F,C'},
+        'safety': {'command': 'safety check --full-report'},
         # Other
-        'test-print': 'echo Working',
-        'test-print-list': ['echo Working once', 'echo Working twice'],
-        'git-update': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
+        'test-print': {'command': 'echo Working'},
+        'test-print-list': {'command': ['echo Working once', 'echo Working twice']},
+        'git-update': {'command': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged']},
     }
 
-    commands['quality'] = [commands['pyflakes'], commands['bandit']]
+    commands['quality'] = {'command': [commands['bandit'], commands['safety'], commands['flake8']], 'except_return_status': True}
 
     return commands
 
@@ -103,6 +106,7 @@ def handle_command(command, arguments):
     """
 
     def print_command(command, args):
+        command = command["command"]
         if isinstance(command, (types.FunctionType, types.MethodType)):
             print(f'Python function: {command}; Args: {args}')
         else:
@@ -133,7 +137,10 @@ def handle_command(command, arguments):
 
         return env
 
-    def run_command(command):
+    def run_command(command, except_return_status=None):
+        if isinstance(command, dict):
+            except_return_status = except_return_status or command.get('except_return_status')
+            command = command['command']
         if isinstance(command, (types.FunctionType, types.MethodType)):
             logging.info('Running: %s', command)
             command(arguments)
@@ -146,10 +153,11 @@ def handle_command(command, arguments):
                 ).check_returncode()
             except (subprocess.CalledProcessError, KeyboardInterrupt) as e:
                 sys.tracebacklimit = 0
-                raise e
+                if not except_return_status:
+                    raise e
         elif isinstance(command, list):
             for elem in command:
-                run_command(elem)
+                run_command(elem, except_return_status)
         else:
             logging.warning('Unknown command type')
 
