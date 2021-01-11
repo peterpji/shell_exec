@@ -113,7 +113,8 @@ def handle_command(command, arguments):
     """
 
     def print_command(command, args):
-        command = command["command"]
+        if isinstance(command, dict):
+            command = command["command"]
         if isinstance(command, (types.FunctionType, types.MethodType)):
             print(f'Python function: {command}; Args: {args}')
         else:
