@@ -10,7 +10,15 @@ import argparse
 FILE_DIR = os.path.dirname(__file__)
 
 
+def example_func(*args):
+    print('This is a python test function')
+    print(args)
+
+
 def generate_commands() -> dict:
+    """
+    Check readme for valid command formats
+    """
     udev_yaml = os.path.join(FILE_DIR, '..', 'docker', 'ubuntu_dev', 'docker-compose.yml')
 
     commands = {
@@ -34,6 +42,7 @@ def generate_commands() -> dict:
         # Other
         'test-print': 'echo Working',
         'test-print-list': ['echo Working once', 'echo Working twice'],
+        'test-python': example_func,
         'git-update': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
     }
 
