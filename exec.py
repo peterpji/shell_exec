@@ -15,28 +15,26 @@ def generate_commands() -> dict:
 
     commands = {
         # Setup
-        'python-setup': {
-            'command': [
-                'python -m pip install --upgrade pip',
-                'python -m pip install --upgrade pylint black virtualenv requests pandas jupyter aiohttp matplotlib',
-            ]
-        },
+        'python-setup': [
+            'python -m pip install --upgrade pip',
+            'python -m pip install --upgrade pylint black virtualenv requests pandas jupyter aiohttp matplotlib',
+        ],
         # Docker
-        'udev': {'command': 'docker attach ubuntu-dev'},
-        'udev-bash': {'command': 'docker exec -it ubuntu-dev /bin/bash'},
-        'udev-up': {'command': f'docker-compose --file {udev_yaml} up -d --force-recreate --always-recreate-deps'},
-        'udev-down': {'command': f'docker-compose --file {udev_yaml} down'},
-        'udev-build': {'command': f'docker-compose --file {udev_yaml} build'},
-        'udev-exec': {'command': 'docker exec -it ubuntu-dev'},
-        'udev-compose': {'command': f'docker-compose --file {udev_yaml}'},
+        'udev': 'docker attach ubuntu-dev',
+        'udev-bash': 'docker exec -it ubuntu-dev /bin/bash',
+        'udev-up': f'docker-compose --file {udev_yaml} up -d --force-recreate --always-recreate-deps',
+        'udev-down': f'docker-compose --file {udev_yaml} down',
+        'udev-build': f'docker-compose --file {udev_yaml} build',
+        'udev-exec': 'docker exec -it ubuntu-dev',
+        'udev-compose': f'docker-compose --file {udev_yaml}',
         # Code quality
-        'bandit': {'command': f'bandit -r {FILE_DIR} --skip B101,B322 --format txt'},
-        'flake8': {'command': f'flake8 {FILE_DIR} --select F,C'},
-        'safety': {'command': 'safety check --full-report'},
+        'bandit': f'bandit -r {FILE_DIR} --skip B101,B404,B602 --format txt',
+        'flake8': f'flake8 {FILE_DIR} --select F,C',
+        'safety': 'safety check --full-report',
         # Other
-        'test-print': {'command': 'echo Working'},
-        'test-print-list': {'command': ['echo Working once', 'echo Working twice']},
-        'git-update': {'command': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged']},
+        'test-print': 'echo Working',
+        'test-print-list': ['echo Working once', 'echo Working twice'],
+        'git-update': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
     }
 
     commands['quality'] = {'command': [commands['bandit'], commands['safety'], commands['flake8']], 'except_return_status': True}
