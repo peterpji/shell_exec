@@ -39,6 +39,7 @@ def generate_commands() -> dict:
         'bandit': f'bandit -r {FILE_DIR} --skip B101,B404,B602 --format txt',
         'flake8': f'flake8 {FILE_DIR} --select F,C',
         'safety': 'safety check --full-report',
+        'coverage': ['python -m coverage run --source=. -m unittest discover', 'python -m coverage report'],
         # Other
         'test-print': 'echo Working',
         'test-print-list': ['echo Working once', 'echo Working twice'],
