@@ -40,6 +40,7 @@ def generate_commands() -> dict:
         'flake8': f'flake8 {FILE_DIR} --select F,C',
         'safety': 'safety check --full-report',
         'coverage': ['python -m coverage run --source=. -m unittest discover', 'python -m coverage report'],
+        'black': 'black --line-length=150 --skip-string-normalization --exclude=logs/ ./',
         # Other
         'test-print': 'echo Working',
         'test-print-list': ['echo Working once', 'echo Working twice'],
