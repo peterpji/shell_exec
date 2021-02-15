@@ -37,6 +37,7 @@ def generate_commands() -> dict:
         'udev-compose': f'docker-compose --file={udev_yaml}',
         # Code quality
         'bandit': f'bandit -r {FILE_DIR} --skip=B101,B404,B602 --format=txt',
+        'flake8-show-stoppers': f'flake8 {FILE_DIR} --count --statistics --select=E9,F63,F7,F82 --show-source',
         'flake8': f'flake8 {FILE_DIR} --count --statistics --max-complexity=10 --select=F,C --ignore=E501,W503',
         'safety': 'safety check --full-report',
         'coverage': ['python -m coverage run --source=. -m unittest discover', 'python -m coverage report'],
@@ -48,7 +49,15 @@ def generate_commands() -> dict:
         'git-update': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
     }
 
-    commands['quality'] = {'command': [commands['bandit'], commands['safety'], commands['flake8']], 'except_return_status': True}
+    commands['quality'] = {
+        'command': [
+            commands['bandit'],
+            commands['safety'],
+            commands['flake8-show-stoppers'],
+            commands['flake8'],
+        ],
+        'except_return_status': True,
+    }
 
     return commands
 
