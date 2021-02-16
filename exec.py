@@ -42,7 +42,7 @@ def generate_commands() -> dict:
         'safety': 'safety check --full-report',
         'coverage': ['python -m coverage run --source=. -m unittest discover', 'python -m coverage report'],
         'black': 'black --line-length=150 --skip-string-normalization --exclude=logs/ ./',
-        'pylint': f'python -m pylint {FILE_DIR}',
+        'pylint': f'cd {os.path.join(FILE_DIR, "..")} && python -m pylint {FILE_DIR}',
         # Other
         'test-print': 'echo Working',
         'test-print-list': ['echo Working once', 'echo Working twice'],
