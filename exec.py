@@ -24,13 +24,17 @@ def generate_commands() -> dict:
 
     commands = {
         # Setup
-        'python-setup': [
-            'python -m pip install --upgrade pip',
-            'python -m pip install --upgrade pylint black virtualenv requests pandas jupyter aiohttp matplotlib',
-        ],
+        'python-setup': {
+            'command': [
+                'python -m pip install --upgrade pip',
+                'python -m pip install --upgrade bandit black coverage flake8 pylint safety virtualenv requests pandas jupyter aiohttp matplotlib',
+            ],
+            'description': 'Upgrades pip, packages used by this tool and some other basic packages',
+        },
         # Docker
         'udev': 'docker attach ubuntu-dev',
         'udev-bash': 'docker exec -it ubuntu-dev /bin/bash',
+        'udev-run': 'docker exec -it ubuntu-dev',
         'udev-up': f'docker-compose --file={udev_yaml} up -d --force-recreate --always-recreate-deps',
         'udev-down': f'docker-compose --file={udev_yaml} down',
         'udev-build': f'docker-compose --file={udev_yaml} build',
@@ -38,17 +42,20 @@ def generate_commands() -> dict:
         'udev-compose': f'docker-compose --file={udev_yaml}',
         # Code quality
         'bandit': f'bandit -r {FILE_DIR} --skip=B101,B404,B602 --format=txt',
+        'black': 'black --line-length=150 --skip-string-normalization --exclude=logs/ ./',
+        'coverage': ['python -m coverage run --source=. -m unittest discover', 'python -m coverage report'],
         'flake8-show-stoppers': f'flake8 {FILE_DIR} --count --statistics --select=E9,F63,F7,F82 --show-source',
         'flake8': f'flake8 {FILE_DIR} --count --statistics --max-complexity=10 --select=F,C --ignore=E501,W503',
-        'safety': 'safety check --full-report',
-        'coverage': ['python -m coverage run --source=. -m unittest discover', 'python -m coverage report'],
-        'black': 'black --line-length=150 --skip-string-normalization --exclude=logs/ ./',
         'pylint': f'cd {os.path.join(FILE_DIR, "..")} && python -m pylint {FILE_DIR}',
+        'safety': 'safety check --full-report',
         # Other
-        'test-print': 'echo Working',
-        'test-print-list': ['echo Working once', 'echo Working twice'],
-        'test-python': example_func,
-        'git-update': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
+        'test-print': {'command': 'echo Working', 'description': 'Echoes "Working". Example of a hello world command.'},
+        'test-print-list': {'command': ['echo Working once', 'echo Working twice'], 'description': 'Runs multiple commands in row'},
+        'test-python': {'command': example_func, 'description': 'Example of a python command. Echoes back given arguments object'},
+        'git-update': {
+            'command': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
+            'description': 'Shortcut for pulling git master with stashing',
+        },
     }
 
     commands['quality'] = {
@@ -123,7 +130,7 @@ def command_list(as_string=False):
         commands_parsed = []
         for command in commands:
             if isinstance(COMMANDS[command], dict) and COMMANDS[command].get("description"):
-                command = f'{command} ; {COMMANDS[command]["description"]}'
+                command = f'{command.ljust(25)} ; {COMMANDS[command]["description"]}'
             commands_parsed.append(command)
 
         commands = '\n' + '\n'.join(commands_parsed)
