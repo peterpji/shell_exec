@@ -7,8 +7,8 @@ import types
 import json
 import argparse
 
-FILE_DIR = os.path.dirname(__file__)
-SAVED_COMMANDS_PATH = os.path.join(os.path.dirname(__file__), 'saved_commands.json')
+FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+SAVED_COMMANDS_PATH = os.path.join(FILE_DIR, 'saved_commands.json')
 
 
 def example_func(*args):
@@ -89,6 +89,9 @@ class SavedCommands:
         command_code = ' '.join(arguments.command_args[1:])
 
         self.saved_commands_dict[command_name] = command_code
+
+        if not os.path.isdir(os.path.dirname(SAVED_COMMANDS_PATH)):
+            os.mkdir(os.path.dirname(SAVED_COMMANDS_PATH))
 
         with open(SAVED_COMMANDS_PATH, 'w') as commands_file:
             json.dump(self.saved_commands_dict, commands_file, indent=4)
