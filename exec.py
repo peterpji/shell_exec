@@ -8,6 +8,7 @@ import json
 import argparse
 
 FILE_DIR = os.path.dirname(__file__)
+SAVED_COMMANDS_PATH = os.path.join(os.path.dirname(__file__), 'saved_commands.json')
 
 
 def example_func(*args):
@@ -73,14 +74,13 @@ class SavedCommands:
         """
 
         def load_saved_commands():
-            if os.path.isfile(self.saved_commands_path):
-                with open(self.saved_commands_path) as commands_file:
+            if os.path.isfile(SAVED_COMMANDS_PATH):
+                with open(SAVED_COMMANDS_PATH) as commands_file:
                     saved_commands_dict = json.load(commands_file)
             else:
                 saved_commands_dict = {}
             return saved_commands_dict
 
-        self.saved_commands_path = os.path.join(os.path.dirname(__file__), 'saved_commands.json')
         self.saved_commands_dict = load_saved_commands()
         self._take_saved_commands_to_use(commands_dict)
 
@@ -90,14 +90,14 @@ class SavedCommands:
 
         self.saved_commands_dict[command_name] = command_code
 
-        with open(self.saved_commands_path, 'w') as commands_file:
+        with open(SAVED_COMMANDS_PATH, 'w') as commands_file:
             json.dump(self.saved_commands_dict, commands_file, indent=4)
 
     def delete_command(self, arguments):
         command_name = arguments.command_args[0]
         del self.saved_commands_dict[command_name]
 
-        with open(self.saved_commands_path, 'w') as commands_file:
+        with open(SAVED_COMMANDS_PATH, 'w') as commands_file:
             json.dump(self.saved_commands_dict, commands_file, indent=4)
 
     def _take_saved_commands_to_use(self, commands_dict):
