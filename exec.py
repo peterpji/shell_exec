@@ -105,7 +105,10 @@ class SavedCommands:
 
     def _take_saved_commands_to_use(self, commands_dict):
         use_commands = {
-            'save-command': self.save_command,
+            'save-command': {
+                'command': self.save_command,
+                'description': 'Syntax: save-command <command-name-without-spaces> <command line command>',
+            },
             'delete-command': self.delete_command,
         }
         commands_dict.update(use_commands)
@@ -117,7 +120,13 @@ def command_list(as_string=False):
     commands.sort()
 
     if as_string:
-        commands = '\n' + '\n'.join(commands)
+        commands_parsed = []
+        for command in commands:
+            if isinstance(COMMANDS[command], dict) and COMMANDS[command].get("description"):
+                command = f'{command} ; {COMMANDS[command]["description"]}'
+            commands_parsed.append(command)
+
+        commands = '\n' + '\n'.join(commands_parsed)
 
     return commands
 
