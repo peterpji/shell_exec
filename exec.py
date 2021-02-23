@@ -45,7 +45,7 @@ def generate_commands() -> dict:
         'black': 'black --line-length=150 --skip-string-normalization --exclude=logs/ ./',
         'coverage': ['python -m coverage run --source=. -m unittest discover', 'python -m coverage report'],
         'flake8-show-stoppers': f'flake8 {FILE_DIR} --count --statistics --select=E9,F63,F7,F82 --show-source',
-        'flake8': f'flake8 {FILE_DIR} --count --statistics --max-complexity=10 --select=F,C --ignore=E501,W503',
+        'flake8': f'flake8 {FILE_DIR} --count --statistics --max-complexity=10 --select=F,C --ignore=E501,W503,E226',
         'pylint': f'cd {os.path.join(FILE_DIR, "..")} && python -m pylint {FILE_DIR}',
         'safety': 'safety check --full-report',
         # Other
