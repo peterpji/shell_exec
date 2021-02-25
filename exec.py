@@ -269,6 +269,13 @@ def main():
             command = localize_command(command)
         return command
 
+    def rename_terminal_title():
+        if platform.system() == 'Windows':
+            ctypes.windll.kernel32.SetConsoleTitleW(arguments.command_name)
+            # subprocess.run(['title', arguments.command_name], shell=True)  # pylint: disable=subprocess-run-check
+        else:
+            sys.stdout.write(f"\x1b]2;{arguments.command_name}\x07")
+
     arguments = parse_sys_argv()
     init_logging_to_file()
     SavedCommands(COMMANDS)
@@ -278,11 +285,7 @@ def main():
         return
 
     if arguments.command_name in COMMANDS:
-        if platform.system() == 'Windows':
-            ctypes.windll.kernel32.SetConsoleTitleW(arguments.command_name)
-            # subprocess.run(['title', arguments.command_name], shell=True)  # pylint: disable=subprocess-run-check
-        else:
-            sys.stdout.write(f"\x1b]2;{arguments.command_name}\x07")
+        rename_terminal_title()
         command = map_command(arguments.command_name)
         handle_command(command, arguments)
     else:
