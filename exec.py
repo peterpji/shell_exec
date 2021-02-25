@@ -1,11 +1,12 @@
-import sys
+import argparse
+import ctypes
+import json
+import logging
 import os.path
 import platform
 import subprocess
-import logging
+import sys
 import types
-import json
-import argparse
 
 FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 SAVED_COMMANDS_PATH = os.path.join(FILE_DIR, 'saved_commands.json')
@@ -277,6 +278,11 @@ def main():
         return
 
     if arguments.command_name in COMMANDS:
+        if platform.system() == 'Windows':
+            ctypes.windll.kernel32.SetConsoleTitleW(arguments.command_name)
+            # subprocess.run(['title', arguments.command_name], shell=True)  # pylint: disable=subprocess-run-check
+        else:
+            sys.stdout.write(f"\x1b]2;{arguments.command_name}\x07")
         command = map_command(arguments.command_name)
         handle_command(command, arguments)
     else:
