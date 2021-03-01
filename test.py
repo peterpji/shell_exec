@@ -1,9 +1,9 @@
-import unittest
-from unittest.mock import patch
 import os
 import sys
+import unittest
 from contextlib import contextmanager
 from io import StringIO
+from unittest.mock import patch
 
 from exec import main
 
