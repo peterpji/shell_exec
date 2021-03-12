@@ -28,7 +28,9 @@ def generate_commands() -> dict:
         'python-setup': {
             'command': [
                 'python -m pip install --upgrade pip',
-                'python -m pip install --upgrade bandit black coverage flake8 pylint safety virtualenv requests pandas jupyter aiohttp matplotlib',
+                'python -m pip install --upgrade'
+                ' bandit black coverage flake8 isort pre-commit pylint safety'  # Packages used in example commands
+                ' virtualenv requests pandas jupyter aiohttp matplotlib',  # Other useful packages
             ],
             'description': 'Upgrades pip, packages used by this tool and some other basic packages',
         },
