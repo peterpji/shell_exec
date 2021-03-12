@@ -35,11 +35,10 @@ def generate_commands() -> dict:
         # Docker
         'udev': 'docker attach ubuntu-dev',
         'udev-bash': 'docker exec -it ubuntu-dev /bin/bash',
-        'udev-run': 'docker exec -it ubuntu-dev',
+        'udev-exec': 'docker exec -it ubuntu-dev',
         'udev-up': f'docker-compose --file={udev_yaml} up -d --force-recreate --always-recreate-deps',
         'udev-down': f'docker-compose --file={udev_yaml} down',
         'udev-build': f'docker-compose --file={udev_yaml} build',
-        'udev-exec': 'docker exec -it ubuntu-dev',
         'udev-compose': f'docker-compose --file={udev_yaml}',
         # Code quality
         'bandit': f'bandit -r {FILE_DIR} --skip=B101,B404,B602 --format=txt',
