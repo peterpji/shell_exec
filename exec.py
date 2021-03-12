@@ -134,7 +134,7 @@ def command_list(as_string=False):
     if as_string:
         commands_parsed = []
         for command in commands:
-            if isinstance(COMMANDS[command], dict) and COMMANDS[command].get("description"):
+            if isinstance(COMMANDS[command], dict) and COMMANDS[command].get('description'):
                 command = f'{command.ljust(25)} ; {COMMANDS[command]["description"]}'
             commands_parsed.append(command)
 
@@ -150,7 +150,7 @@ def handle_command(command, arguments):
 
     def print_command(command, args):
         if isinstance(command, dict):
-            command = command["command"]
+            command = command['command']
         if isinstance(command, (types.FunctionType, types.MethodType)):
             print(f'Python function: {command}; Args: {args}')
         else:
@@ -244,7 +244,7 @@ def main():
     def init_logging_to_file():
         log_file_path = os.path.join(os.path.dirname(__file__), 'logs', 'exec.log')
         logging.basicConfig(
-            filename=log_file_path, filemode="a", format="%(levelname)s:%(name)s:%(asctime)s:%(message)s", datefmt='%Y-%m-%d %H:%M:%S', level='INFO'
+            filename=log_file_path, filemode='a', format='%(levelname)s:%(name)s:%(asctime)s:%(message)s', datefmt='%Y-%m-%d %H:%M:%S', level='INFO'
         )
         logging.info('##### NEW RUN #####')
         logging.info('New run args: %s', sys.argv)
@@ -278,7 +278,7 @@ def main():
             ctypes.windll.kernel32.SetConsoleTitleW(arguments.command_name)
             # subprocess.run(['title', arguments.command_name], shell=True)  # pylint: disable=subprocess-run-check
         else:
-            sys.stdout.write(f"\x1b]2;{arguments.command_name}\x07")
+            sys.stdout.write(f'\x1b]2;{arguments.command_name}\x07')
 
     arguments = parse_sys_argv()
     init_logging_to_file()
@@ -296,5 +296,5 @@ def main():
         handle_unrecognized_command()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
