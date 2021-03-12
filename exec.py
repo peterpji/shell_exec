@@ -63,11 +63,11 @@ def generate_commands() -> dict:
 
     commands['quality'] = {
         'command': [
+            commands['pre-commit-tools'],
             commands['isort'],
             commands['black'],
             commands['bandit'],
             commands['safety'],
-            commands['flake8-show-stoppers'],
             commands['flake8'],
             commands['pylint'],
         ],
