@@ -46,7 +46,7 @@ def generate_commands() -> dict:
         'black': f'black --line-length=150 --skip-string-normalization --exclude=logs/ {FILE_DIR}',
         'coverage': [f'python -m coverage run --source={FILE_DIR} -m unittest discover', 'python -m coverage report'],
         'flake8-show-stoppers': f'flake8 {FILE_DIR} --count --statistics --select=E9,F63,F7,F82 --show-source',  # Most critical issues
-        'flake8': f'flake8 {FILE_DIR} --count --statistics --max-complexity=10 --select=F,C --ignore=E501,W503,E226',
+        'flake8': f'flake8 {FILE_DIR} --count --statistics --max-complexity=10 --select=F,C --ignore=E501,W503,E226,E203',
         'isort': [f'isort {FILE_DIR}', 'run black'],  # Ensure that code formating stays consistent after the import fixes using black
         'pylint': f'cd {os.path.join(FILE_DIR, "..")} && python -m pylint {FILE_DIR}',
         'safety': f'safety check --full-report --file={os.path.join(FILE_DIR, "requirements.txt")}',
