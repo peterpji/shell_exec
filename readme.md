@@ -20,3 +20,4 @@ Otherwise this opens up a shell command injection vulnerability.
     * The actual commands run are in key 'command'.
     * Currently implemented:
         * except_return_status: Ignore exceptions and non-zero exit codes when running a list of commands.
+        * description: Printed with help texts
