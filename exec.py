@@ -243,14 +243,6 @@ def main():
         arguments.command_args += unknown_kwargs
         return arguments
 
-    def init_logging_to_file():
-        log_file_path = os.path.join(os.path.dirname(__file__), 'logs', 'exec.log')
-        logging.basicConfig(
-            filename=log_file_path, filemode='a', format='%(levelname)s:%(name)s:%(asctime)s:%(message)s', datefmt='%Y-%m-%d %H:%M:%S', level='INFO'
-        )
-        logging.info('##### NEW RUN #####')
-        logging.info('New run args: %s', sys.argv)
-
     def print_help():
         print(f'This is {__file__}')
         print()
@@ -283,7 +275,6 @@ def main():
             sys.stdout.write(f'\x1b]2;{arguments.command_name}\x07')
 
     arguments = parse_sys_argv()
-    init_logging_to_file()
     SavedCommands(COMMANDS)
 
     if not arguments.command_name:
