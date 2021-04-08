@@ -44,14 +44,14 @@ def generate_commands() -> dict:
 
     commads_py_code_quality = {
         'bandit': for_py_repos('bandit --skip=B101,B404,B602 --format=txt -r'),
-        'black': f'black --line-length=150 --skip-string-normalization --exclude=logs/ {FILE_DIR}',
-        'coverage': [f'python -m coverage run --source={FILE_DIR} -m unittest discover', 'python -m coverage report'],
-        'flake8-show-stoppers': f'flake8 {FILE_DIR} --count --statistics --select=E9,F63,F7,F82 --show-source',  # Most critical issues
-        'flake8': f'flake8 {FILE_DIR} --count --statistics --max-complexity=10 --select=F,C --ignore=E501,W503,E226,E203',
-        'isort': [f'isort {FILE_DIR} --profile=black --line-length=150'],
-        'pre-commit': f'cd {FILE_DIR} && pre-commit run -a',
-        'pylint': f'cd {os.path.join(FILE_DIR, "..")} && python -m pylint {FILE_DIR}',
-        'safety': f'safety check --full-report --file={os.path.join(FILE_DIR, "requirements.txt")}',
+        'black': for_py_repos('black --line-length=150 --skip-string-normalization --exclude=logs/'),
+        'coverage': [f'python -m coverage run --source={exec_repo} -m unittest discover', 'python -m coverage report'],
+        'flake8-show-stoppers': f'flake8 {exec_repo} --count --statistics --select=E9,F63,F7,F82 --show-source',  # Most critical issues
+        'flake8': f'flake8 {exec_repo} --count --statistics --max-complexity=10 --select=F,C --ignore=E501,W503,E226,E203',
+        'isort': [f'isort {exec_repo} --profile=black --line-length=150'],
+        'pre-commit': f'cd {exec_repo} && pre-commit run -a',
+        'pylint': f'cd {os.path.join(exec_repo, "..")} && python -m pylint {exec_repo}',
+        'safety': f'safety check --full-report --file={os.path.join(exec_repo, "requirements.txt")}',
     }
 
     commands_js_code_quality = {  # pylint: disable=unused-variable
