@@ -21,10 +21,25 @@ def generate_commands() -> dict:
     """
     Check readme for valid command formats
     """
-    udev_yaml = os.path.join(FILE_DIR, '..', 'docker', 'ubuntu_dev', 'docker-compose.yml')
+
+    def for_repos(repo_list, command, cd=False):
+        command_list = []
+        for repo in repo_list:
+            if cd:
+                command_list.append(f'cd {repo} && ' + command)
+            else:
+                command_list.append(command + ' ' + repo)
+        return command_list
+
+    def for_repos_py(command, cd=False):
+        py_repo_list = [exec_repo]
+        return for_repos(py_repo_list, command, cd=cd)
+
+    udev_yaml = os.path.join(FILE_DIR, '..', '..', 'docker', 'ubuntu_dev', 'docker-compose.yml')
+    exec_repo = os.path.join(FILE_DIR, '..')
 
     commads_py_code_quality = {
-        'bandit': f'bandit -r {FILE_DIR} --skip=B101,B404,B602 --format=txt',
+        'bandit': for_repos_py(f'bandit -r {FILE_DIR} --skip=B101,B404,B602 --format=txt'),
         'black': f'black --line-length=150 --skip-string-normalization --exclude=logs/ {FILE_DIR}',
         'coverage': [f'python -m coverage run --source={FILE_DIR} -m unittest discover', 'python -m coverage report'],
         'flake8-show-stoppers': f'flake8 {FILE_DIR} --count --statistics --select=E9,F63,F7,F82 --show-source',  # Most critical issues
@@ -54,7 +69,6 @@ def generate_commands() -> dict:
         'udev-down': f'docker-compose --file={udev_yaml} down',
         'udev-build': f'docker-compose --file={udev_yaml} build',
         'udev-compose': f'docker-compose --file={udev_yaml}',
-        # Code quality
         # Other
         'test-print': {'command': 'echo Working', 'description': 'Echoes "Working". Example of a hello world command.'},
         'test-print-list': {'command': ['echo Working once', 'echo Working twice'], 'description': 'Runs multiple commands in row'},
