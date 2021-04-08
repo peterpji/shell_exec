@@ -43,14 +43,23 @@ def generate_commands() -> dict:
     exec_repo = os.path.join(FILE_DIR, '..')
 
     commads_py_code_quality = {
-        'bandit': for_py_repos('bandit --skip=B101,B404,B602 --format=txt -r'),
+        'bandit': {
+            'command': for_py_repos('bandit --skip=B101,B404,B602 -r'),
+            'except_return_status': True,
+        },
         'black': for_py_repos('black --line-length=150 --skip-string-normalization --exclude=logs/'),
         'coverage': [f'python -m coverage run --source={exec_repo} -m unittest discover', 'python -m coverage report'],
-        'flake8-show-stoppers': f'flake8 {exec_repo} --count --statistics --select=E9,F63,F7,F82 --show-source',  # Most critical issues
-        'flake8': f'flake8 {exec_repo} --count --statistics --max-complexity=10 --select=F,C --ignore=E501,W503,E226,E203',
-        'isort': [f'isort {exec_repo} --profile=black --line-length=150'],
-        'pre-commit': f'cd {exec_repo} && pre-commit run -a',
-        'pylint': f'cd {os.path.join(exec_repo, "..")} && python -m pylint {exec_repo}',
+        'flake8-show-stoppers': {  # Most critical issues
+            'command': for_py_repos('flake8 --count --statistics --select=E9,F63,F7,F82 --show-source'),
+            'except_return_status': True,
+        },
+        'flake8': {
+            'command': for_py_repos('flake8 --count --statistics --max-complexity=10 --ignore=W503,E203,E226,E402,E501'),
+            'except_return_status': True,
+        },
+        'isort': for_py_repos('isort --profile=black --line-length=150 .', cd=True),
+        'pre-commit': {'command': for_py_repos('pre-commit run -a', cd=True), 'except_return_status': True},
+        'pylint': f'cd {os.path.join(exec_repo, "..")} && python -m pylint --ignore=.eggs {exec_repo}',
         'safety': f'safety check --full-report --file={os.path.join(exec_repo, "requirements.txt")}',
     }
 
@@ -98,7 +107,7 @@ def generate_commands() -> dict:
             commads_py_code_quality['black'],
             commads_py_code_quality['flake8'],
             commads_py_code_quality['pylint'],
-            commads_py_code_quality['pre-commit-tools'],
+            commads_py_code_quality['pre-commit'],
             commads_py_code_quality['safety'],
             commads_py_code_quality['bandit'],
         ],
