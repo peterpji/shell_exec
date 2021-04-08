@@ -3,3 +3,5 @@ old_drafts/
 logs/
 __pycache__/
 .coverage
+*.egg-info
+.eggs
