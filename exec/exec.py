@@ -31,7 +31,11 @@ def generate_commands() -> dict:
                 command_list.append(command + ' ' + repo)
         return command_list
 
-    def for_repos_py(command, cd=False):
+    def for_py_repos(command, cd=False):
+        py_repo_list = [exec_repo]
+        return for_repos(py_repo_list, command, cd=cd)
+
+    def for_js_repos(command, cd=False):
         py_repo_list = [exec_repo]
         return for_repos(py_repo_list, command, cd=cd)
 
@@ -39,7 +43,7 @@ def generate_commands() -> dict:
     exec_repo = os.path.join(FILE_DIR, '..')
 
     commads_py_code_quality = {
-        'bandit': for_repos_py(f'bandit -r {FILE_DIR} --skip=B101,B404,B602 --format=txt'),
+        'bandit': for_py_repos('bandit --skip=B101,B404,B602 --format=txt -r'),
         'black': f'black --line-length=150 --skip-string-normalization --exclude=logs/ {FILE_DIR}',
         'coverage': [f'python -m coverage run --source={FILE_DIR} -m unittest discover', 'python -m coverage report'],
         'flake8-show-stoppers': f'flake8 {FILE_DIR} --count --statistics --select=E9,F63,F7,F82 --show-source',  # Most critical issues
@@ -48,6 +52,15 @@ def generate_commands() -> dict:
         'pre-commit': f'cd {FILE_DIR} && pre-commit run -a',
         'pylint': f'cd {os.path.join(FILE_DIR, "..")} && python -m pylint {FILE_DIR}',
         'safety': f'safety check --full-report --file={os.path.join(FILE_DIR, "requirements.txt")}',
+    }
+
+    commands_js_code_quality = {  # pylint: disable=unused-variable
+        'eslint': {
+            'command': for_js_repos('eslint ./src/** --fix --config=.eslintrc-fix', cd=True),
+            'except_return_status': True,
+        },
+        'prettier': for_js_repos('prettier --write ./src/', cd=True),
+        'npm-audit': for_js_repos('npm audit', cd=True),
     }
 
     commands = {
@@ -79,7 +92,7 @@ def generate_commands() -> dict:
         },
     }
 
-    commands['quality'] = {
+    commands['py-quality'] = {
         'command': [
             commads_py_code_quality['isort'],
             commads_py_code_quality['black'],
