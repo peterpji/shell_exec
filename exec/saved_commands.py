@@ -1,6 +1,6 @@
-from argparse import Namespace
 import json
 import os
+from argparse import Namespace
 
 from exec.command import Command  # pylint: disable=unused-import # Used in type annotations
 
