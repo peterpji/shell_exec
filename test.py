@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from io import StringIO
 from unittest.mock import patch
 
-from exec import main
+from exec.main import main
 
 
 @contextmanager

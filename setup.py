@@ -24,5 +24,5 @@ setuptools.setup(
         'pylint',
         'safety',
     ],
-    entry_points={'console_scripts': ['exec=exec.exec:main']},  # TODO Might need to be put in a package?
+    entry_points={'console_scripts': ['exec=exec.main:main']},  # TODO Might need to be put in a package?
 )
