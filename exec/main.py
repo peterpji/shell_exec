@@ -69,7 +69,7 @@ def generate_commands() -> dict:
         'safety': f'safety check --full-report --file={os.path.join(exec_repo, "requirements.txt")}',
     }
 
-    commands_js_code_quality = {  # pylint: disable=unused-variable
+    commands_js_code_quality = {
         'eslint': {
             'command': for_js_repos('eslint ./src/** --fix --config=.eslintrc-fix', cd=True),
             'except_return_status': True,
@@ -116,6 +116,15 @@ def generate_commands() -> dict:
             commads_py_code_quality['pre-commit'],
             commads_py_code_quality['safety'],
             commads_py_code_quality['bandit'],
+        ],
+        'except_return_status': True,
+    }
+
+    commands['js-quality'] = {
+        'command': [
+            commands_js_code_quality['npm-audit'],
+            commands_js_code_quality['eslint'],
+            commands_js_code_quality['prettier'],
         ],
         'except_return_status': True,
     }
