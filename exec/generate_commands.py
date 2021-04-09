@@ -7,11 +7,11 @@ FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def example_func(*args):
-    print('This is a python test function')
+    print('This is a python test function which prints incoming arguments')
     print(args)
 
 
-def generate_commands() -> dict:
+def generate_commands() -> 'dict[str, Command]':
     """
     Check readme for valid command formats
     """

@@ -1,12 +1,15 @@
+from argparse import Namespace
 import json
 import os
+
+from exec.command import Command  # pylint: disable=unused-import # Used in type annotations
 
 FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 SAVED_COMMANDS_PATH = os.path.join(FILE_DIR, 'saved_commands.json')
 
 
 class SavedCommands:
-    def __init__(self, commands_dict):
+    def __init__(self, commands_dict: 'dict[str, Command]'):
         """
         Initialization adds save_command and delete_command methods to the commands_dict
         """
@@ -22,7 +25,7 @@ class SavedCommands:
         self.saved_commands_dict = load_saved_commands()
         self._take_saved_commands_to_use(commands_dict)
 
-    def save_command(self, arguments):
+    def save_command(self, arguments: Namespace):
         command_name = arguments.command_args[0]
         command_code = ' '.join(arguments.command_args[1:])
 
@@ -41,7 +44,7 @@ class SavedCommands:
         with open(SAVED_COMMANDS_PATH, 'w') as commands_file:
             json.dump(self.saved_commands_dict, commands_file, indent=4)
 
-    def _take_saved_commands_to_use(self, commands_dict):
+    def _take_saved_commands_to_use(self, commands_dict: 'dict[str, Command]'):
         use_commands = {
             'save-command': {
                 'command': self.save_command,

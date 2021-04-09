@@ -4,6 +4,7 @@ import logging
 import platform
 import sys
 
+from exec.command import Command
 from exec.generate_commands import generate_commands
 
 COMMANDS = generate_commands()
@@ -63,7 +64,7 @@ def main():
         else:
             sys.stdout.write(f'\x1b]2;{command_name}\x07')
 
-    def ask_confirmation_from_user(command):
+    def ask_confirmation_from_user(command: Command):
         conf = ''
         while conf.lower() not in ['y', 'n']:
             print(command)
