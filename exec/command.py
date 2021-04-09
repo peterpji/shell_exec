@@ -72,7 +72,8 @@ class Command:
             return
 
         if isinstance(command, dict):
-            return Command(**command).execute()
+            Command(**command).execute()
+            return
 
         raise ValueError(f'Unknown command type: {command}')
 
