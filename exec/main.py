@@ -29,12 +29,12 @@ def command_list(as_string=False):
 def main():
     """
     WARNING: This script executes subprocess with a shell.
-    It does not automatically validate shell inputs and thus should only be used locally.
-    Otherwise this opens up a shell command injection vulnerability.
+    It does not automatically validate shell inputs!
+    Thus, it should only be used locally, otherwise this opens up a shell injection vulnerability.
 
     Use tips:
     If you need more help, run this script with --help flag.
-    On Windows: If you want to run this from the command line with just the file name without extension, add ".py;" to the environment variable PATHTEXT
+    You can get this to your local PATH by installing this as a python package (run 'pip install .' on the project root directory).
     """
 
     def parse_sys_argv():
