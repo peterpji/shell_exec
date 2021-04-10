@@ -82,7 +82,7 @@ class Command:
             sub_command = sub_command.split(' ')
             try:
                 subprocess_runner = subprocess.Popen if self.parallel else subprocess.run
-                process = subprocess_runner(  # pylint: disable=subprocess-run-check
+                process = subprocess_runner(  # pylint: disable=subprocess-run-check # nosec
                     sub_command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, env=self._get_patched_environ(), shell=True
                 )
                 self.command_stack.append(process)
