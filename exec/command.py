@@ -3,18 +3,26 @@ import os.path
 import platform
 import subprocess
 import sys
+from time import sleep
 from types import FunctionType, MethodType
 from typing import Optional, Union
 
 
 class Command:
     def __init__(
-        self, command: Union[FunctionType, MethodType, str, list], except_return_status: bool = False, description: Optional[str] = None
+        self,
+        command: Union[FunctionType, MethodType, str, list],
+        description: Optional[str] = None,
+        except_return_status: bool = False,
+        parallel: bool = False,
     ) -> None:
         self.command = command
-        self.except_return_status = except_return_status
         self.arguments = None
         self.description = description
+        self.except_return_status = except_return_status
+
+        self.command_stack = []
+        self.parallel = parallel
 
     @staticmethod
     def _get_patched_environ():
@@ -43,39 +51,50 @@ class Command:
         command = localize_str_command(command)
         return command
 
-    def execute(self, sub_command=None) -> None:
+    def execute(self) -> None:
+        def check_all_sub_commands_are_complete():
+            if not self.parallel:
+                return
+            while any(c.poll() is None for c in self.command_stack):
+                sleep(0.001)
 
-        command = sub_command or self.command
+        self._execute_sub_command(self.command)
+        check_all_sub_commands_are_complete()
 
-        if isinstance(command, list):
-            for elem in command:
-                self.execute(elem)
+    def _execute_sub_command(self, sub_command) -> None:
+        if isinstance(sub_command, list):
+            for elem in sub_command:
+                self._execute_sub_command(elem)
             return
 
-        if isinstance(command, (FunctionType, MethodType)):
-            logging.info('Running: %s', command)
-            command(self.arguments)
+        if isinstance(sub_command, (FunctionType, MethodType)):
+            logging.info('Running: %s', sub_command)
+            sub_command(self.arguments)
             return
 
-        if isinstance(command, str):
-            logging.info('Running: %s', command)
-            command = self._parse_str_command(command)
-            command = command.split(' ')
+        if isinstance(sub_command, str):
+            logging.info('Running: %s', sub_command)
+            sub_command = self._parse_str_command(sub_command)
+            sub_command = sub_command.split(' ')
             try:
-                subprocess.run(  # pylint: disable=subprocess-run-check
-                    command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, env=self._get_patched_environ(), shell=True
-                ).check_returncode()
+                subprocess_runner = subprocess.Popen if self.parallel else subprocess.run
+                process = subprocess_runner(  # pylint: disable=subprocess-run-check
+                    sub_command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, env=self._get_patched_environ(), shell=True
+                )
+                self.command_stack.append(process)
+                if hasattr(process, 'check_returncode'):
+                    process.check_returncode()
             except (subprocess.CalledProcessError, KeyboardInterrupt) as e:
                 sys.tracebacklimit = 0
                 if not self.except_return_status:
                     raise e
             return
 
-        if isinstance(command, dict):
-            Command(**command).execute()
+        if isinstance(sub_command, dict):
+            Command(**sub_command).execute()
             return
 
-        raise ValueError(f'Unknown command type: {command}')
+        raise ValueError(f'Unknown command type: {sub_command}')
 
     def __repr__(self, sub_command=None) -> str:
         command = sub_command or self.command

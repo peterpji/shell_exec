@@ -96,6 +96,13 @@ def generate_commands() -> 'dict[str, Command]':
         'test-print': {'command': 'echo Working', 'description': 'Echoes "Working". Example of a hello world command.'},
         'test-print-list': {'command': ['echo Working once', 'echo Working twice'], 'description': 'Runs multiple commands in row'},
         'test-python': {'command': example_func, 'description': 'Example of a python command. Echoes back given arguments object'},
+        'test-parallel': {
+            'command': [
+                'echo Long call starting && timeout 1 > nul && echo Long call done',
+                'echo Hi, am I interrupting?',
+            ],
+            'parallel': True,
+        },
         'git-update': {
             'command': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
             'description': 'Shortcut for pulling git master with stashing',
