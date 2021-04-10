@@ -69,6 +69,10 @@ class Command:
                 self._execute_sub_command(elem)
             return
 
+        if isinstance(sub_command, dict):
+            Command(**sub_command).execute()
+            return
+
         if isinstance(sub_command, (FunctionType, MethodType)):
             logging.info('Running: %s', sub_command)
             if self.parallel:
@@ -95,10 +99,6 @@ class Command:
                 sys.tracebacklimit = 0
                 if not self.except_return_status:
                     raise e
-            return
-
-        if isinstance(sub_command, dict):
-            Command(**sub_command).execute()
             return
 
         raise ValueError(f'Unknown command type: {sub_command}')
