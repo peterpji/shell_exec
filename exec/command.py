@@ -94,7 +94,7 @@ class Command:
             )
             self.command_stack.append(process)
             try:
-                if hasattr(process, 'check_returncode'):
+                if hasattr(process, 'check_returncode'):  # Only possible with subprocess.run
                     process.check_returncode()
             except (subprocess.CalledProcessError, KeyboardInterrupt) as e:
                 sys.tracebacklimit = 0
