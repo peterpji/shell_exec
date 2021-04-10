@@ -1,4 +1,5 @@
 import os.path
+from time import sleep
 
 from exec.command import Command
 from exec.saved_commands import SavedCommands
@@ -9,6 +10,12 @@ FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 def example_func(*args):
     print('This is a python test function which prints incoming arguments')
     print(args)
+
+
+def long_py_func(*_):
+    print('This is a long python command')
+    sleep(2)
+    print('Long python command done')
 
 
 def generate_commands() -> 'dict[str, Command]':
@@ -99,6 +106,7 @@ def generate_commands() -> 'dict[str, Command]':
         'test-parallel': {
             'command': [
                 'echo Long call starting && timeout 1 > nul && echo Long call done',
+                long_py_func,
                 'echo Hi, am I interrupting?',
             ],
             'parallel': True,

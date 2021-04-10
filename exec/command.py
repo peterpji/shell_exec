@@ -3,6 +3,7 @@ import os.path
 import platform
 import subprocess
 import sys
+from multiprocessing import Process
 from time import sleep
 from types import FunctionType, MethodType
 from typing import Optional, Union
@@ -55,8 +56,9 @@ class Command:
         def check_all_sub_commands_are_complete():
             if not self.parallel:
                 return
-            while any(c.poll() is None for c in self.command_stack):
+            while any(c.poll() is None for c in self.command_stack if isinstance(c, subprocess.Popen)):
                 sleep(0.001)
+            _ = [c.join() for c in self.command_stack if isinstance(c, Process)]
 
         self._execute_sub_command(self.command)
         check_all_sub_commands_are_complete()
@@ -69,7 +71,9 @@ class Command:
 
         if isinstance(sub_command, (FunctionType, MethodType)):
             logging.info('Running: %s', sub_command)
-            sub_command(self.arguments)
+            sub_process = Process(target=sub_command, args=self.arguments)
+            sub_process.start()
+            self.command_stack.append(sub_process)
             return
 
         if isinstance(sub_command, str):
