@@ -88,7 +88,6 @@ class Command:
         if isinstance(sub_command, str):
             logging.info('Running: %s', sub_command)
             sub_command = self._parse_str_command(sub_command)
-            sub_command = sub_command.split(' ')
             subprocess_runner = subprocess.Popen if self.parallel else subprocess.run
             process = subprocess_runner(  # pylint: disable=subprocess-run-check # nosec
                 sub_command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, env=self._get_patched_environ(), shell=True
