@@ -76,6 +76,8 @@ class Command:
         if isinstance(sub_command, (FunctionType, MethodType)):
             logging.info('Running: %s', sub_command)
             if self.parallel:
+                # Using multiprocessing module has some drawbacks, mainly not being able to take user input anymore
+                # Thus, it is only used when needed
                 sub_process = Process(target=sub_command, args=self.arguments)
                 sub_process.start()
                 self.command_stack.append(sub_process)
