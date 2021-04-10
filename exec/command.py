@@ -22,7 +22,7 @@ class Command:
         self.description = description
         self.except_return_status = except_return_status
 
-        self.command_stack = []
+        self.command_stack: 'list[Union[subprocess.CompletedProcess, subprocess.Popen, Process]]' = []
         self.parallel = parallel
 
     @staticmethod
