@@ -71,9 +71,12 @@ class Command:
 
         if isinstance(sub_command, (FunctionType, MethodType)):
             logging.info('Running: %s', sub_command)
-            sub_process = Process(target=sub_command, args=self.arguments)
-            sub_process.start()
-            self.command_stack.append(sub_process)
+            if self.parallel:
+                sub_process = Process(target=sub_command, args=self.arguments)
+                sub_process.start()
+                self.command_stack.append(sub_process)
+                return
+            sub_command(self.arguments)
             return
 
         if isinstance(sub_command, str):
