@@ -42,6 +42,8 @@ def generate_commands() -> 'dict[str, Command]':
 
     def convert_to_command_objects(commands):
         for command_name, command in commands.items():
+            if isinstance(command, Command):
+                continue
             if isinstance(command, dict):
                 commands[command_name] = Command(**command)
                 continue
