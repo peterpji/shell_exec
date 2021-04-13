@@ -58,6 +58,9 @@ def main():
         print(f'Unrecognized command. Available commands: {command_list(as_string=True)}\n')
 
     def rename_terminal_title(command_name: str):
+        """
+        Sets the name of the command as the title of the command line window.
+        """
         if platform.system() == 'Windows':
             ctypes.windll.kernel32.SetConsoleTitleW(command_name)
             # subprocess.run(['title', command_name], shell=True)  # pylint: disable=subprocess-run-check
