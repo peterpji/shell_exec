@@ -20,19 +20,34 @@ def captured_output():
 
 
 class TestBasicFunctionality(unittest.TestCase):
-    def test_single_command(self):
-        with patch('exec.sys.argv', [os.path.join(os.path.dirname(__file__), 'exec.py'), 'test-print']):
-            main()
+    @patch('exec.main.sys.argv', [os.path.join(os.path.dirname(__file__), 'exec.py'), 'test-print'])
+    @patch('exec.command.subprocess.run')
+    def test_single_command(self, mock_shell):
+        main()
+        self.assertEqual(mock_shell.call_args_list[0][0][0], 'echo Working')
 
-    def test_list(self):
-        with patch('exec.sys.argv', [os.path.join(os.path.dirname(__file__), 'exec.py'), 'test-print-list']):
-            main()
+    @patch('exec.main.sys.argv', [os.path.join(os.path.dirname(__file__), 'exec.py'), 'test-print', '123'])
+    @patch('exec.command.subprocess.run')
+    def test_single_command_with_args(self, mock_shell):
+        main()
+        self.assertEqual(mock_shell.call_args_list[0][0][0], 'echo Working 123')
 
-    def test_print_command(self):
-        with patch('exec.sys.argv', [os.path.join(os.path.dirname(__file__), 'exec.py'), 'test-print', '--print']):
-            with patch('builtins.print') as out:
-                main()
-        self.assertEqual(out.call_args_list[0][0][0], 'echo Working')
+    @patch('exec.main.sys.argv', [os.path.join(os.path.dirname(__file__), 'exec.py'), 'test-print-list'])
+    @patch('exec.command.subprocess.run')
+    def test_list(self, mock_shell):
+        main()
+
+        expectation = ['echo Working once', 'echo Working twice']
+
+        for call, expectation_elem in zip(mock_shell.call_args_list, expectation):
+            self.assertEqual(call[0][0], expectation_elem)
+        self.assertEqual(len(mock_shell.call_args_list), len(expectation))
+
+    @patch('exec.main.sys.argv', [os.path.join(os.path.dirname(__file__), 'exec.py'), 'test-print', '--print'])
+    @patch('builtins.print')
+    def test_print_command(self, mock_print):
+        main()
+        self.assertEqual(mock_print.call_args_list[0][0][0].command, 'echo Working')
 
 
 if __name__ == '__main__':
