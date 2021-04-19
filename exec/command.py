@@ -66,6 +66,7 @@ class Command:
     def _execute_sub_command(self, sub_command) -> None:
         if isinstance(sub_command, list):
             for elem in sub_command:
+                self.arguments = ''
                 self._execute_sub_command(elem)
             return
 

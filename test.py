@@ -43,6 +43,17 @@ class TestBasicFunctionality(unittest.TestCase):
             self.assertEqual(call[0][0], expectation_elem)
         self.assertEqual(len(mock_shell.call_args_list), len(expectation))
 
+    @patch('exec.main.sys.argv', [os.path.join(os.path.dirname(__file__), 'exec.py'), 'test-print-list', '123'])
+    @patch('exec.command.subprocess.run')
+    def test_list_with_args(self, mock_shell):
+        main()
+
+        expectation = ['echo Working once', 'echo Working twice']
+
+        for call, expectation_elem in zip(mock_shell.call_args_list, expectation):
+            self.assertEqual(call[0][0], expectation_elem)
+        self.assertEqual(len(mock_shell.call_args_list), len(expectation))
+
     @patch('exec.main.sys.argv', [os.path.join(os.path.dirname(__file__), 'exec.py'), 'test-print', '--print'])
     @patch('builtins.print')
     def test_print_command(self, mock_print):
