@@ -1,5 +1,6 @@
 import os.path
 from time import sleep
+from typing import Dict
 
 from exec.command import Command
 from exec.saved_commands import SavedCommands
@@ -18,7 +19,7 @@ def long_py_func(*_):
     print('Long python command done')
 
 
-def generate_commands() -> 'dict[str, Command]':
+def generate_commands() -> Dict[str, Command]:
     """
     Check readme for valid command formats
     """

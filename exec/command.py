@@ -1,18 +1,20 @@
 import logging
-import os.path
+import os
 import platform
 import subprocess
 import sys
 from multiprocessing import Process
 from time import sleep
 from types import FunctionType, MethodType
-from typing import Optional, Union
+from typing import Dict, List, Optional, Union
+
+command_low_level_type = Union[FunctionType, MethodType, str, list]
 
 
 class Command:
     def __init__(
         self,
-        command: Union[FunctionType, MethodType, str, list],
+        command: command_low_level_type,
         description: Optional[str] = None,
         except_return_status: bool = False,
         parallel: bool = False,
@@ -22,11 +24,11 @@ class Command:
         self.description = description
         self.except_return_status = except_return_status
 
-        self.command_stack: 'list[Union[subprocess.CompletedProcess, subprocess.Popen, Process]]' = []
+        self.command_stack: List[Union[subprocess.CompletedProcess, subprocess.Popen, Process]] = []
         self.parallel = parallel
 
     @staticmethod
-    def _get_patched_environ():
+    def _get_patched_environ() -> Dict[str, str]:
         def win_add_ssh_to_path(env):
             system32 = os.path.join(os.environ['SystemRoot'], 'SysNative' if platform.architecture()[0] == '32bit' else 'System32')
             ssh_path = os.path.join(system32, 'OpenSSH')
@@ -37,7 +39,7 @@ class Command:
             win_add_ssh_to_path(env)
         return env
 
-    def _parse_str_command(self, sub_command=None):
+    def _parse_str_command(self, sub_command: command_low_level_type = None):
         def localize_str_command(command):
             if platform.system() == 'Windows':
                 command = command.replace('~', '%userprofile%')
@@ -63,10 +65,10 @@ class Command:
         self._execute_sub_command(self.command)
         check_all_sub_commands_are_complete()
 
-    def _execute_sub_command(self, sub_command) -> None:
+    def _execute_sub_command(self, sub_command: command_low_level_type) -> None:
         if isinstance(sub_command, list):
             for elem in sub_command:
-                self.arguments = ''
+                self.arguments = []
                 self._execute_sub_command(elem)
             return
 
@@ -105,7 +107,7 @@ class Command:
 
         raise ValueError(f'Unknown command type: {sub_command}')
 
-    def __repr__(self, sub_command=None) -> str:
+    def __repr__(self, sub_command: command_low_level_type = None) -> str:
         command = sub_command or self.command
 
         if isinstance(command, list):
