@@ -6,7 +6,7 @@ import sys
 from multiprocessing import Process
 from time import sleep
 from types import FunctionType, MethodType
-from typing import Dict, List, Optional, Union
+from typing import Dict, IO, List, Optional, Union
 
 command_low_level_type = Union[FunctionType, MethodType, str, list]
 
@@ -55,11 +55,24 @@ class Command:
         return command
 
     def execute(self) -> None:
+        def print_if_content(index: int, process: subprocess.Popen, file: IO):
+            content = process.stdout.read1().decode()
+            if content:
+                print(f'Process {index}: ' + content, end='', file=file)
+
+        def print_all_command_output():
+            for index, process in enumerate(self.command_stack):
+                if isinstance(process, subprocess.Popen):
+                    print_if_content(index, process, sys.stdout)
+                    print_if_content(index, process, sys.stderr)
+
         def check_all_sub_commands_are_complete():
             if not self.parallel:
                 return
             while any(c.poll() is None for c in self.command_stack if isinstance(c, subprocess.Popen)):
-                sleep(0.001)
+                print_all_command_output()
+                sleep(0.01)
+            print_all_command_output()
             _ = [c.join() for c in self.command_stack if isinstance(c, Process)]
 
         self._execute_sub_command(self.command)
@@ -91,10 +104,15 @@ class Command:
         if isinstance(sub_command, str):
             logging.info('Running: %s', sub_command)
             sub_command = self._parse_str_command(sub_command)
-            subprocess_runner = subprocess.Popen if self.parallel else subprocess.run
-            process = subprocess_runner(  # pylint: disable=subprocess-run-check # nosec
-                sub_command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, env=self._get_patched_environ(), shell=True
-            )
+            common_kwargs = {'shell': True, 'env': self._get_patched_environ()}
+            if self.parallel:
+                process = subprocess.Popen(  # pylint: disable=subprocess-run-check # nosec
+                    sub_command, stdin=sys.stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **common_kwargs
+                )
+            else:
+                process = subprocess.run(  # pylint: disable=subprocess-run-check # nosec
+                    sub_command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, **common_kwargs
+                )
             self.command_stack.append(process)
             try:
                 if hasattr(process, 'check_returncode'):  # Only possible with subprocess.run
