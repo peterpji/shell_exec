@@ -6,7 +6,14 @@ import sys
 from multiprocessing import Process
 from time import sleep
 from types import FunctionType, MethodType
-from typing import Dict, IO, List, Optional, Union
+from typing import IO, Dict, List, Optional, Union
+
+try:
+    import colorama  # A library fixing shell formating for windows.
+
+    colorama.init()
+except Exception:
+    pass
 
 command_low_level_type = Union[FunctionType, MethodType, str, list]
 
@@ -57,8 +64,9 @@ class Command:
     def execute(self) -> None:
         def print_if_content(index: int, process: subprocess.Popen, file: IO):
             content = process.stdout.read1().decode()
+            content = content.replace('\n', f'\nProcess {index}: ')
             if content:
-                print(f'Process {index}: ' + content, end='', file=file)
+                print(content, end='', file=file)
 
         def print_all_command_output():
             for index, process in enumerate(self.command_stack):
