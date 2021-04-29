@@ -18,6 +18,58 @@ except Exception:
 command_low_level_type = Union[FunctionType, MethodType, str, list]
 
 
+class SubprocessExecutable:
+    def __init__(self, command: str, stdin: bool = False, index: Optional[int] = None, **common_kwargs) -> None:
+        self.index = index
+        self.content = ['', '']
+
+        kwargs = {'stdout': subprocess.PIPE, 'stderr': subprocess.PIPE, **common_kwargs}
+        if stdin:
+            kwargs['stdin'] = sys.stdin
+        self.sub_command = subprocess.Popen(command, **kwargs)  # pylint: disable=subprocess-run-check # nosec
+
+    def _format_line(self, content):
+        return content if self.index is None else f'[{self.index}] {content}'
+
+    def print_if_content(self, source, dest, content_index):
+        new_output: str = source.read1().decode()
+        self.content[content_index] += new_output
+        if '\n' not in self.content[content_index]:
+            return
+        sections = self.content[content_index].split('\n')
+        line_to_print = self._format_line(sections[0])
+        print(line_to_print, file=dest)
+        self.content[content_index] = self.content[content_index].replace(sections[0] + '\n', '', 1)
+
+    def print_rest(self, source, dest, content_index):
+        new_output: str = source.read1().decode()
+        self.content[content_index] += new_output
+        if not self.content[content_index]:
+            return
+        line_to_print = self._format_line(self.content[content_index])
+        print(line_to_print, file=dest)
+
+    def __call__(self) -> None:
+        stdout_args = [self.sub_command.stdout, sys.stdout, 0]
+        stderr_args = [self.sub_command.stderr, sys.stderr, 1]
+        while self.sub_command.poll() is None:
+            sleep(0.01)
+            self.print_if_content(*stdout_args)
+            self.print_if_content(*stderr_args)
+        self.print_rest(*stdout_args)
+        self.print_rest(*stderr_args)
+        return self.sub_command.returncode
+
+
+def run_executable(command: str, except_return_status: bool, **kwargs):
+    executable = SubprocessExecutable(command, **kwargs)
+    return_code = executable()
+    if not except_return_status and return_code:
+        sys.tracebacklimit = 0
+        raise RuntimeError(f'Process returned with status code {return_code}')
+    return executable
+
+
 class Command:
     def __init__(
         self,
@@ -62,25 +114,9 @@ class Command:
         return command
 
     def execute(self) -> None:
-        def print_if_content(index: int, process: subprocess.Popen, file: IO):
-            content = process.stdout.read1().decode()
-            content = content.replace('\n', f'\nProcess {index}: ')
-            if content:
-                print(content, end='', file=file)
-
-        def print_all_command_output():
-            for index, process in enumerate(self.command_stack):
-                if isinstance(process, subprocess.Popen):
-                    print_if_content(index, process, sys.stdout)
-                    print_if_content(index, process, sys.stderr)
-
         def check_all_sub_commands_are_complete():
             if not self.parallel:
                 return
-            while any(c.poll() is None for c in self.command_stack if isinstance(c, subprocess.Popen)):
-                print_all_command_output()
-                sleep(0.01)
-            print_all_command_output()
             _ = [c.join() for c in self.command_stack if isinstance(c, Process)]
 
         self._execute_sub_command(self.command)
@@ -114,21 +150,17 @@ class Command:
             sub_command = self._parse_str_command(sub_command)
             common_kwargs = {'shell': True, 'env': self._get_patched_environ()}
             if self.parallel:
-                process = subprocess.Popen(  # pylint: disable=subprocess-run-check # nosec
-                    sub_command, stdin=sys.stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **common_kwargs
+                process = Process(
+                    target=run_executable,
+                    args=[sub_command, self.except_return_status],
+                    kwargs={**common_kwargs, 'index': len(self.command_stack)},
                 )
+                process.start()
+                # TODO Notify user if parallel process exits with return_code != 0
             else:
-                process = subprocess.run(  # pylint: disable=subprocess-run-check # nosec
-                    sub_command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, **common_kwargs
-                )
+                # Using "Process" here would standardize how the commands work but it would disable sys.stdin piping.
+                process = run_executable(sub_command, self.except_return_status, stdin=sys.stdin, **common_kwargs)
             self.command_stack.append(process)
-            try:
-                if hasattr(process, 'check_returncode'):  # Only possible with subprocess.run
-                    process.check_returncode()
-            except (subprocess.CalledProcessError, KeyboardInterrupt) as e:
-                sys.tracebacklimit = 0
-                if not self.except_return_status:
-                    raise e
             return
 
         raise ValueError(f'Unknown command type: {sub_command}')
