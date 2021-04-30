@@ -6,7 +6,7 @@ import sys
 from multiprocessing import Process
 from time import sleep
 from types import FunctionType, MethodType
-from typing import IO, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 try:
     import colorama  # A library fixing shell formating for windows.
