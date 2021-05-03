@@ -14,7 +14,7 @@ try:
 
     colorama.init()
 except Exception:
-    pass
+    logging.debug('Colorama not initialized')
 
 command_low_level_type = Union[FunctionType, MethodType, str, list]
 
