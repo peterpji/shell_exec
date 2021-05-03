@@ -2,7 +2,6 @@ import logging
 import os
 import platform
 import subprocess
-import sys
 from multiprocessing import Process
 from types import FunctionType, MethodType
 from typing import Dict, List, Optional, Union
