@@ -72,6 +72,10 @@ class Command:
         check_all_sub_commands_are_complete()
 
     def _execute_sub_command(self, sub_command: command_low_level_type) -> None:
+        if isinstance(sub_command, Command):
+            sub_command.execute()
+            return
+
         if isinstance(sub_command, list):
             for elem in sub_command:
                 self.arguments = []
