@@ -5,13 +5,25 @@ from typing import Optional
 
 
 class SubprocessExecutable:
-    def __init__(self, command: str, stdin: bool = False, index: Optional[int] = None, **common_kwargs) -> None:
+    def __init__(self, command: str, parallel: bool = False, index: Optional[int] = None, **common_kwargs) -> None:
         self.index = index
         self.content = ['', '']
+        self.parallel = parallel
 
-        kwargs = {'stdout': subprocess.PIPE, 'stderr': subprocess.PIPE, **common_kwargs}
-        if stdin:
-            kwargs['stdin'] = sys.stdin
+        if parallel:
+            kwargs = {
+                **common_kwargs,
+                'stdout': subprocess.PIPE,
+                'stderr': subprocess.PIPE,
+            }
+        else:
+            kwargs = {
+                **common_kwargs,
+                'stdin': sys.stdin,
+                'stdout': sys.stdout,
+                'stderr': sys.stderr,
+            }
+
         self.sub_command = subprocess.Popen(command, **kwargs)  # pylint: disable=subprocess-run-check # nosec
 
     def _format_line(self, content):
@@ -36,6 +48,10 @@ class SubprocessExecutable:
         print(line_to_print, file=dest)
 
     def __call__(self) -> None:
+        if not self.parallel:
+            self.sub_command.wait()
+            return self.sub_command.returncode
+
         stdout_args = [self.sub_command.stdout, sys.stdout, 0]
         stderr_args = [self.sub_command.stderr, sys.stderr, 1]
         while self.sub_command.poll() is None:

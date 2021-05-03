@@ -101,7 +101,7 @@ class Command:
         if isinstance(sub_command, str):
             logging.info('Running: %s', sub_command)
             sub_command = self._parse_str_command(sub_command)
-            common_kwargs = {'shell': True, 'env': self._get_patched_environ()}
+            common_kwargs = {'shell': True, 'env': self._get_patched_environ(), 'parallel': self.parallel}
             if self.parallel:
                 process = Process(
                     target=run_executable,
@@ -112,7 +112,7 @@ class Command:
                 # TODO Notify user if parallel process exits with return_code != 0
             else:
                 # Using "Process" here would standardize how the commands work but it would disable sys.stdin piping.
-                process = run_executable(sub_command, self.except_return_status, stdin=sys.stdin, **common_kwargs)
+                process = run_executable(sub_command, self.except_return_status, **common_kwargs)
             self.command_stack.append(process)
             return
 
