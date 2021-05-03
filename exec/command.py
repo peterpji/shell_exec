@@ -112,7 +112,7 @@ class Command:
             self.command_stack.append(process)
             return
 
-        raise ValueError(f'Unknown command type: {sub_command}')
+        raise ValueError(f'Unknown command type {type(sub_command)}: {sub_command}')
 
     def __repr__(self, sub_command: command_low_level_type = None) -> str:
         command = sub_command or self.command
