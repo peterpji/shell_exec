@@ -1,4 +1,4 @@
-import subprocess
+from subprocess import Popen, PIPE
 import sys
 from multiprocessing import Queue
 from threading import Thread
@@ -6,49 +6,35 @@ from time import sleep
 from typing import Optional
 
 
-def _format_line(line, index):
-    return line if index is None else f'[{index}] {line}'
-
-
-def reader(process: subprocess.Popen, feed_type: str, queue: Queue, index: int):
-    while process.poll() is None:
+def reader(process: Popen, feed_type: str, queue: Queue, print_prefix: int):
+    def read_line():
         line = getattr(process, feed_type).readline()
         if not line:
-            sleep(0.01)
-            continue
-        line = _format_line(line.decode(), index)
+            return False
+        line = print_prefix + line.decode()
         queue.put((feed_type, line))
 
+        return True
 
-class StrSubCommand:
-    queue: Queue
-    stdout_reader: Thread
-    stderr_reader: Thread
+    while process.poll() is None:
+        if not read_line():
+            sleep(0.01)
+    sleep(0.01)
+    while read_line():
+        pass
 
-    def __init__(self, command: str, except_return_status: bool, parallel: bool = False, index: Optional[int] = None, **common_kwargs) -> None:
-        self.index = index
-        self.content = ['', '']
-        self.parallel = parallel
-        self.except_return_status = except_return_status
 
-        if parallel:
-            kwargs = {
-                **common_kwargs,
-                'stdout': subprocess.PIPE,
-                'stderr': subprocess.PIPE,
-            }
-        else:  # Avoiding pipe has some benefits, e.g. printing with color to the console
-            kwargs = {
-                **common_kwargs,
-                'stdin': sys.stdin,
-                'stdout': sys.stdout,
-                'stderr': sys.stderr,
-            }
+class ShellPrinter:
+    def __init__(self, sub_process, print_prefix: Optional[int] = None) -> None:
+        self.sub_process = sub_process
+        self.print_prefix = print_prefix
 
-        self.sub_command = subprocess.Popen(command, **kwargs)  # pylint: disable=subprocess-run-check # nosec
+        self.queue = Queue()
+        self.stdout_reader = self._start_output_reader('stdout')
+        self.stderr_reader = self._start_output_reader('stderr')
 
     def _start_output_reader(self, feed: str):
-        output_reader = Thread(target=reader, args=[self.sub_command, feed, self.queue, self.index])
+        output_reader = Thread(target=reader, args=[self.sub_process, feed, self.queue, self.print_prefix])
         output_reader.start()
         return output_reader
 
@@ -62,9 +48,34 @@ class StrSubCommand:
 
     def _output_print_loop(self):
         while self.stdout_reader.is_alive() or self.stderr_reader.is_alive() or not self.queue.empty():
-            if self._print_output_from_queue():
-                sleep(0.01)
-                continue
+            self._print_output_from_queue()
+        self._print_output_from_queue()
+
+    def start(self):
+        self._output_print_loop()
+
+
+class StrSubCommand:
+    def __init__(self, command: str, except_return_status: bool, parallel: bool = False, index: Optional[int] = None, **common_kwargs) -> None:
+        self.parallel = parallel
+        self.except_return_status = except_return_status
+        self.print_prefix = '' if index is None else f'[{index}] '
+
+        if parallel:
+            kwargs = {
+                **common_kwargs,
+                'stdout': PIPE,
+                'stderr': PIPE,
+            }
+        else:  # Avoiding pipe has some benefits, e.g. printing with color to the console
+            kwargs = {
+                **common_kwargs,
+                'stdin': sys.stdin,
+                'stdout': sys.stdout,
+                'stderr': sys.stderr,
+            }
+
+        self.sub_command = Popen(command, **kwargs)  # pylint: disable=subprocess-run-check # nosec
 
     def _handle_error(self, return_code):
         if not self.except_return_status and return_code:
@@ -76,11 +87,8 @@ class StrSubCommand:
             self.sub_command.wait()
             return self.sub_command.returncode
 
-        self.queue = Queue()
-        self.stdout_reader = self._start_output_reader('stdout')
-        self.stderr_reader = self._start_output_reader('stderr')
-
-        self._output_print_loop()
+        output_printer = ShellPrinter(self.sub_command, self.print_prefix)
+        output_printer.start()
 
         assert self.sub_command.poll() is not None, 'Output printing loop should not exit before the process is done'
         self._handle_error(self.sub_command.returncode)
