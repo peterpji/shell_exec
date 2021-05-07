@@ -67,7 +67,7 @@ class StrSubCommand:
                 'stdout': PIPE,
                 'stderr': PIPE,
             }
-        else:  # Avoiding pipe has some benefits, e.g. printing with color to the console
+        else:  # Avoiding pipe has some benefits, e.g. printing with color to the console as a default on some software
             kwargs = {
                 **common_kwargs,
                 'stdin': sys.stdin,
