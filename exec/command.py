@@ -6,7 +6,7 @@ from multiprocessing import Process
 from types import FunctionType, MethodType
 from typing import Dict, List, Optional, Union
 
-from .subprocess_executable import run_executable
+from .str_sub_command import run_executable
 
 try:
     import colorama  # A library fixing shell formating for windows.

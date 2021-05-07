@@ -20,15 +20,16 @@ def reader(process: subprocess.Popen, feed_type: str, queue: Queue, index: int):
         queue.put((feed_type, line))
 
 
-class SubprocessExecutable:
+class StrSubCommand:
     queue: Queue
     stdout_reader: Thread
     stderr_reader: Thread
 
-    def __init__(self, command: str, parallel: bool = False, index: Optional[int] = None, **common_kwargs) -> None:
+    def __init__(self, command: str, except_return_status: bool, parallel: bool = False, index: Optional[int] = None, **common_kwargs) -> None:
         self.index = index
         self.content = ['', '']
         self.parallel = parallel
+        self.except_return_status = except_return_status
 
         if parallel:
             kwargs = {
@@ -65,6 +66,11 @@ class SubprocessExecutable:
                 sleep(0.01)
                 continue
 
+    def _handle_error(self, return_code):
+        if not self.except_return_status and return_code:
+            sys.tracebacklimit = 0
+            raise RuntimeError(f'Process returned with status code {return_code}')
+
     def __call__(self) -> None:
         if not self.parallel:
             self.sub_command.wait()
@@ -77,13 +83,11 @@ class SubprocessExecutable:
         self._output_print_loop()
 
         assert self.sub_command.poll() is not None, 'Output printing loop should not exit before the process is done'
+        self._handle_error(self.sub_command.returncode)
         return self.sub_command.returncode
 
 
 def run_executable(command: str, except_return_status: bool, **kwargs):
-    executable = SubprocessExecutable(command, **kwargs)
-    return_code = executable()
-    if not except_return_status and return_code:
-        sys.tracebacklimit = 0
-        raise RuntimeError(f'Process returned with status code {return_code}')
+    executable = StrSubCommand(command, except_return_status, **kwargs)
+    executable()
     return executable
