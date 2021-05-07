@@ -56,20 +56,27 @@ class ShellPrinter:
 
 
 class StrSubCommand:
-    def __init__(self, command: str, except_return_status: bool, parallel: bool = False, index: Optional[int] = None, **common_kwargs) -> None:
+    def __init__(
+        self,
+        command: str,
+        except_return_status: bool = False,
+        parallel: bool = False,
+        index: Optional[int] = None,
+        **subprocess_kwargs,
+    ) -> None:
         self.parallel = parallel
         self.except_return_status = except_return_status
         self.print_prefix = '' if index is None else f'[{index}] '
 
         if parallel:
             kwargs = {
-                **common_kwargs,
+                **subprocess_kwargs,
                 'stdout': PIPE,
                 'stderr': PIPE,
             }
         else:  # Avoiding pipe has some benefits, e.g. printing with color to the console as a default on some software
             kwargs = {
-                **common_kwargs,
+                **subprocess_kwargs,
                 'stdin': sys.stdin,
                 'stdout': sys.stdout,
                 'stderr': sys.stderr,
