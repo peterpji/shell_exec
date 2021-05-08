@@ -3,7 +3,12 @@ import sys
 from multiprocessing import Queue
 from threading import Thread
 from time import sleep
-from typing import Optional
+from types import FunctionType, MethodType
+from typing import Dict, List, Optional, Union
+import os
+import platform
+
+command_low_level_type = Union[FunctionType, MethodType, str, list]
 
 
 def reader(process: Popen, feed_type: str, queue: Queue, print_prefix: int):
@@ -55,6 +60,34 @@ class ShellPrinter:
         self._output_print_loop()
 
 
+def _get_patched_environ() -> Dict[str, str]:
+    def win_add_ssh_to_path(env):
+        system32 = os.path.join(os.environ['SystemRoot'], 'SysNative' if platform.architecture()[0] == '32bit' else 'System32')
+        ssh_path = os.path.join(system32, 'OpenSSH')
+        env['PATH'] += ';' + ssh_path
+
+    env = os.environ.copy()
+    if platform.system() == 'Windows':
+        win_add_ssh_to_path(env)
+    return env
+
+
+def _parse_str_command(str_sub_command: str, arguments: Optional[List[str]] = None):
+    def localize_str_command(str_sub_command):
+        if platform.system() == 'Windows':
+            str_sub_command = str_sub_command.replace('~', '%userprofile%')
+        return str_sub_command
+
+    if not isinstance(str_sub_command, str):
+        raise ValueError('Command is not a string')
+
+    arguments = arguments or []
+
+    str_sub_command = ' '.join([str_sub_command] + arguments)
+    str_sub_command = localize_str_command(str_sub_command)
+    return str_sub_command
+
+
 class StrSubCommand:
     def __init__(
         self,
@@ -62,11 +95,12 @@ class StrSubCommand:
         except_return_status: bool = False,
         parallel: bool = False,
         index: Optional[int] = None,
-        **subprocess_kwargs,
     ) -> None:
         self.parallel = parallel
         self.except_return_status = except_return_status
         self.print_prefix = '' if index is None else f'[{index}] '
+
+        subprocess_kwargs = {'shell': True, 'env': _get_patched_environ()}
 
         if parallel:
             kwargs = {
@@ -102,7 +136,7 @@ class StrSubCommand:
         return self.sub_command.returncode
 
 
-def run_executable(command: str, except_return_status: bool, **kwargs):
-    executable = StrSubCommand(command, except_return_status, **kwargs)
+def run_executable(command: str, **kwargs):
+    executable = StrSubCommand(command, **kwargs)
     executable()
     return executable

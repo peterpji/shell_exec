@@ -1,12 +1,10 @@
 import logging
-import os
-import platform
 import subprocess
 from multiprocessing import Process
 from types import FunctionType, MethodType
-from typing import Dict, List, Optional, Union
+from typing import List, Optional, Union
 
-from .str_sub_command import run_executable
+from .str_sub_command import run_executable, _parse_str_command
 
 try:
     import colorama  # A library fixing shell formating for windows.
@@ -33,33 +31,6 @@ class Command:
 
         self.command_stack: List[Union[subprocess.CompletedProcess, subprocess.Popen, Process]] = []
         self.parallel = parallel
-
-    @staticmethod
-    def _get_patched_environ() -> Dict[str, str]:
-        def win_add_ssh_to_path(env):
-            system32 = os.path.join(os.environ['SystemRoot'], 'SysNative' if platform.architecture()[0] == '32bit' else 'System32')
-            ssh_path = os.path.join(system32, 'OpenSSH')
-            env['PATH'] += ';' + ssh_path
-
-        env = os.environ.copy()
-        if platform.system() == 'Windows':
-            win_add_ssh_to_path(env)
-        return env
-
-    def _parse_str_command(self, sub_command: command_low_level_type = None):
-        def localize_str_command(command):
-            if platform.system() == 'Windows':
-                command = command.replace('~', '%userprofile%')
-            return command
-
-        command = sub_command or self.command
-
-        if not isinstance(command, str):
-            raise ValueError('Command is not a string')
-
-        command = ' '.join([command] + (self.arguments or []))
-        command = localize_str_command(command)
-        return command
 
     def execute(self) -> None:
         def check_all_sub_commands_are_complete():
@@ -99,19 +70,26 @@ class Command:
 
         if isinstance(sub_command, str):
             logging.info('Running: %s', sub_command)
-            sub_command = self._parse_str_command(sub_command)
-            common_kwargs = {'shell': True, 'env': self._get_patched_environ(), 'parallel': self.parallel}
+            sub_command = _parse_str_command(sub_command, self.arguments)
             if self.parallel:
                 process = Process(
                     target=run_executable,
-                    args=[sub_command, self.except_return_status],
-                    kwargs={**common_kwargs, 'index': len(self.command_stack)},
+                    args=[sub_command],
+                    kwargs={
+                        'parallel': self.parallel,
+                        'except_return_status': self.except_return_status,
+                        'index': len(self.command_stack),
+                    },
                 )
                 process.start()
                 # TODO Notify user if parallel process exits with return_code != 0
             else:
                 # Using "Process" here would standardize how the commands work but it would disable sys.stdin piping.
-                process = run_executable(sub_command, self.except_return_status, **common_kwargs)
+                process = run_executable(
+                    sub_command,
+                    except_return_status=self.except_return_status,
+                    parallel=self.parallel,
+                )
             self.command_stack.append(process)
             return
 
@@ -133,7 +111,7 @@ class Command:
             return f'Python function: {self.command}; Args: {self.arguments}'
 
         if isinstance(command, str):
-            command = self._parse_str_command(command)
+            command = _parse_str_command(command, self.arguments)
             return command
 
         raise ValueError(f'Unknown command type: {command}')
