@@ -34,6 +34,8 @@ def _parse_str_command(str_sub_command: str, arguments: Optional[List[str]] = No
 
 
 class Command:
+    arguments: Optional[List[str]]
+
     def __init__(
         self,
         command: command_low_level_type,
@@ -42,12 +44,11 @@ class Command:
         parallel: bool = False,
     ) -> None:
         self.command = command
-        self.arguments = None
         self.description = description
         self.except_return_status = except_return_status
+        self.parallel = parallel
 
         self.command_stack: List[Union[subprocess.CompletedProcess, subprocess.Popen, Process]] = []
-        self.parallel = parallel
 
     def execute(self) -> None:
         def check_all_sub_commands_are_complete():
