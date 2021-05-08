@@ -4,7 +4,7 @@ from types import FunctionType, MethodType
 from typing import Dict, List, Optional, Union
 import os
 import platform
-from .printer import ShellPrinter
+from exec.str_sub_command.printer import ShellPrinter
 
 command_low_level_type = Union[FunctionType, MethodType, str, list]
 
@@ -21,7 +21,7 @@ def _get_patched_environ() -> Dict[str, str]:
     return env
 
 
-def _parse_str_command(str_sub_command: str, arguments: Optional[List[str]] = None):
+def parse_str_command(str_sub_command: str, arguments: Optional[List[str]] = None):
     def localize_str_command(str_sub_command):
         if platform.system() == 'Windows':
             str_sub_command = str_sub_command.replace('~', '%userprofile%')

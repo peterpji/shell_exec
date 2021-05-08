@@ -4,7 +4,7 @@ from multiprocessing import Process
 from types import FunctionType, MethodType
 from typing import List, Optional, Union
 
-from .str_sub_command.str_sub_command import run_executable, _parse_str_command
+from .str_sub_command.str_sub_command import run_executable, parse_str_command
 
 try:
     import colorama  # A library fixing shell formating for windows.
@@ -70,7 +70,7 @@ class Command:
 
         if isinstance(sub_command, str):
             logging.info('Running: %s', sub_command)
-            sub_command = _parse_str_command(sub_command, self.arguments)
+            sub_command = parse_str_command(sub_command, self.arguments)
             if self.parallel:
                 process = Process(
                     target=run_executable,
@@ -111,7 +111,7 @@ class Command:
             return f'Python function: {self.command}; Args: {self.arguments}'
 
         if isinstance(command, str):
-            command = _parse_str_command(command, self.arguments)
+            command = parse_str_command(command, self.arguments)
             return command
 
         raise ValueError(f'Unknown command type: {command}')
