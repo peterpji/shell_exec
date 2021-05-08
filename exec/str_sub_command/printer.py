@@ -1,6 +1,6 @@
-from subprocess import Popen
 import sys
 from multiprocessing import Queue
+from subprocess import Popen
 from threading import Thread
 from time import sleep
 from typing import Optional
@@ -48,7 +48,7 @@ class ShellPrinter:
             sleep(0.01)
             return False
         feed_type, line = self.queue.get()
-        print(f"{line}", end='', file=getattr(sys, feed_type))
+        print(f'{line}', end='', file=getattr(sys, feed_type))
         return True
 
     def _output_print_loop(self):

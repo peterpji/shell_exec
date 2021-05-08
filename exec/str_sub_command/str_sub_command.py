@@ -1,9 +1,10 @@
-from subprocess import Popen, PIPE
-import sys
-from types import FunctionType, MethodType
-from typing import Dict, Optional, Union
 import os
 import platform
+import sys
+from subprocess import PIPE, Popen
+from types import FunctionType, MethodType
+from typing import Dict, Optional, Union
+
 from exec.str_sub_command.printer import ShellPrinter
 
 command_low_level_type = Union[FunctionType, MethodType, str, list]
