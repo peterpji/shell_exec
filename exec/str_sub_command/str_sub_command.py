@@ -1,3 +1,4 @@
+import logging
 import os
 import platform
 import sys
@@ -69,8 +70,10 @@ class StrSubCommand:
         except KeyboardInterrupt:
             try:
                 self.sub_command.terminate()
+                logging.info('Terminated')
             except KeyboardInterrupt:
                 self.sub_command.kill()
+                logging.info('Killed')
 
         self._handle_error(self.sub_command.returncode)
         return self.sub_command.returncode
