@@ -1,7 +1,7 @@
 from subprocess import Popen, PIPE
 import sys
 from types import FunctionType, MethodType
-from typing import Dict, List, Optional, Union
+from typing import Dict, Optional, Union
 import os
 import platform
 from exec.str_sub_command.printer import ShellPrinter
@@ -19,22 +19,6 @@ def _get_patched_environ() -> Dict[str, str]:
     if platform.system() == 'Windows':
         win_add_ssh_to_path(env)
     return env
-
-
-def parse_str_command(str_sub_command: str, arguments: Optional[List[str]] = None):
-    def localize_str_command(str_sub_command):
-        if platform.system() == 'Windows':
-            str_sub_command = str_sub_command.replace('~', '%userprofile%')
-        return str_sub_command
-
-    if not isinstance(str_sub_command, str):
-        raise ValueError('Command is not a string')
-
-    arguments = arguments or []
-
-    str_sub_command = ' '.join([str_sub_command] + arguments)
-    str_sub_command = localize_str_command(str_sub_command)
-    return str_sub_command
 
 
 class StrSubCommand:

@@ -1,10 +1,11 @@
 import logging
+import platform
 import subprocess
 from multiprocessing import Process
 from types import FunctionType, MethodType
 from typing import List, Optional, Union
 
-from .str_sub_command.str_sub_command import run_executable, parse_str_command
+from .str_sub_command.str_sub_command import run_executable
 
 try:
     import colorama  # A library fixing shell formating for windows.
@@ -14,6 +15,22 @@ except Exception:
     logging.debug('Colorama not initialized')
 
 command_low_level_type = Union[FunctionType, MethodType, str, list]
+
+
+def _parse_str_command(str_sub_command: str, arguments: Optional[List[str]] = None):
+    def localize_str_command(str_sub_command):
+        if platform.system() == 'Windows':
+            str_sub_command = str_sub_command.replace('~', '%userprofile%')
+        return str_sub_command
+
+    if not isinstance(str_sub_command, str):
+        raise ValueError('Command is not a string')
+
+    arguments = arguments or []
+
+    str_sub_command = ' '.join([str_sub_command] + arguments)
+    str_sub_command = localize_str_command(str_sub_command)
+    return str_sub_command
 
 
 class Command:
@@ -70,7 +87,7 @@ class Command:
 
         if isinstance(sub_command, str):
             logging.info('Running: %s', sub_command)
-            sub_command = parse_str_command(sub_command, self.arguments)
+            sub_command = _parse_str_command(sub_command, self.arguments)
             if self.parallel:
                 process = Process(
                     target=run_executable,
@@ -111,7 +128,7 @@ class Command:
             return f'Python function: {self.command}; Args: {self.arguments}'
 
         if isinstance(command, str):
-            command = parse_str_command(command, self.arguments)
+            command = _parse_str_command(command, self.arguments)
             return command
 
         raise ValueError(f'Unknown command type: {command}')
