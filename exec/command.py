@@ -4,7 +4,7 @@ from multiprocessing import Process
 from types import FunctionType, MethodType
 from typing import List, Optional, Union
 
-from .str_sub_command import run_executable, _parse_str_command
+from .str_sub_command.str_sub_command import run_executable, _parse_str_command
 
 try:
     import colorama  # A library fixing shell formating for windows.
