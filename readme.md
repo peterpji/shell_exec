@@ -21,3 +21,32 @@ Otherwise this opens up a shell command injection vulnerability.
     * Currently implemented:
         * except_return_status: Ignore exceptions and non-zero exit codes when running a list of commands.
         * description: Printed with help texts
+
+# Program architecture (aspirational diagram)
+```mermaid
+classDiagram
+Command --> SubCommandFactory
+SubCommandFactory --> SubCommandInterface
+SubCommandInterface --> Printer
+
+Command : command_primitive command
+Command : str[] arguments
+Command : SubCommandFactory factory
+Command : bool parallel
+Command : bool except_return_status
+Command : str description
+Command : execute()
+Command : __repr__()
+
+SubCommandFactory : bool parallel
+SubCommandFactory : bool except_return_status
+SubCommandFactory : produce(command_primitive sub_command)
+
+SubCommandInterface : SubCommandFactory factory
+SubCommandInterface : any command
+SubCommandInterface : execute()
+
+SubCommandInterface <|-- StrSubCommand
+SubCommandInterface <|-- ListSubCommand
+SubCommandInterface <|-- PythonNativeSubCommand
+```
