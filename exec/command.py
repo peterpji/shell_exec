@@ -54,7 +54,15 @@ class Command:
         def check_all_sub_commands_are_complete():
             if not self.parallel:
                 return
-            _ = [command.join() for command in self.command_stack if isinstance(command, Process)]
+            try:
+                _ = [command.join() for command in self.command_stack if isinstance(command, Process)]
+            except KeyboardInterrupt:
+                print('Terminate command sent to the processes. Waiting for graceful exit')
+                try:
+                    _ = [command.join() for command in self.command_stack if isinstance(command, Process)]
+                except KeyboardInterrupt:
+                    print('Kill command sent to the processes. Waiting for exit')
+                    _ = [command.join() for command in self.command_stack if isinstance(command, Process)]
 
         self._execute_sub_command(self.command)
         check_all_sub_commands_are_complete()
