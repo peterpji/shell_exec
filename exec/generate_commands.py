@@ -114,6 +114,13 @@ def generate_commands() -> Dict[str, Command]:
             ],
             'parallel': True,
         },
+        'test-non-parallel': {
+            'command': [
+                'echo Long call starting && timeout 1 > nul && echo Long call done',
+                long_py_func,
+                'echo Hi, am I interrupting?',
+            ],
+        },
         'git-update': {
             'command': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
             'description': 'Shortcut for pulling git master with stashing',
