@@ -54,7 +54,7 @@ class Command:
         def check_all_sub_commands_are_complete():
             if not self.parallel:
                 return
-            _ = [c.join() for c in self.command_stack if isinstance(c, Process)]
+            _ = [command.join() for command in self.command_stack if isinstance(command, Process)]
 
         self._execute_sub_command(self.command)
         check_all_sub_commands_are_complete()
