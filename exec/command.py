@@ -5,7 +5,7 @@ from multiprocessing import Process
 from types import FunctionType, MethodType
 from typing import List, Optional, Union
 
-from .str_sub_command.str_sub_command import run_executable
+from .str_sub_command.str_sub_command import run_str_sub_command
 
 try:
     import colorama  # A library fixing shell formating for windows.
@@ -90,7 +90,7 @@ class Command:
             sub_command = _parse_str_command(sub_command, self.arguments)
             if self.parallel:
                 process = Process(
-                    target=run_executable,
+                    target=run_str_sub_command,
                     args=[sub_command],
                     kwargs={
                         'parallel': self.parallel,
@@ -102,7 +102,7 @@ class Command:
                 # TODO Notify user if parallel process exits with return_code != 0
             else:
                 # Using "Process" here would standardize how the commands work but it would disable sys.stdin piping.
-                process = run_executable(
+                process = run_str_sub_command(
                     sub_command,
                     except_return_status=self.except_return_status,
                     parallel=self.parallel,

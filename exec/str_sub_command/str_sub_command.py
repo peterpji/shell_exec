@@ -69,7 +69,7 @@ class StrSubCommand:
         return self.sub_command.returncode
 
 
-def run_executable(command: str, **kwargs):
+def run_str_sub_command(command: str, **kwargs):
     executable = StrSubCommand(command, **kwargs)
     executable()
     return executable
