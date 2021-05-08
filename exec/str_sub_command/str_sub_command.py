@@ -63,9 +63,15 @@ class StrSubCommand:
             return self.sub_command.returncode
 
         output_printer = ShellPrinter(self.sub_command, self.print_prefix)
-        output_printer.start()
+        try:
+            output_printer.start()
+            assert self.sub_command.poll() is not None, 'Output printing loop should not exit before the process is done'
+        except KeyboardInterrupt:
+            try:
+                self.sub_command.terminate()
+            except KeyboardInterrupt:
+                self.sub_command.kill()
 
-        assert self.sub_command.poll() is not None, 'Output printing loop should not exit before the process is done'
         self._handle_error(self.sub_command.returncode)
         return self.sub_command.returncode
 
