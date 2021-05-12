@@ -1,10 +1,8 @@
 """
 Install locally with:
-cd api-markettailor
 pip install -e .
 """
 import os
-
 import setuptools
 
 DIR = os.path.abspath(os.path.dirname(__file__))
@@ -26,5 +24,5 @@ setuptools.setup(
             'safety',
         ]
     },
-    entry_points={'console_scripts': ['exec=exec.main:main']},  # TODO Might need to be put in a package?
+    entry_points={'console_scripts': ['exec=exec.main:main']},
 )
