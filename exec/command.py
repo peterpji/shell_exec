@@ -47,6 +47,7 @@ class Command:
         self.description = description
         self.except_return_status = except_return_status
         self.parallel = parallel
+        self.arguments = None
 
         self.command_stack: List[Union[subprocess.CompletedProcess, subprocess.Popen, Process]] = []
 
@@ -133,6 +134,9 @@ class Command:
         if isinstance(command, dict):
             return Command(**command).__repr__()
 
+        if isinstance(command, Command):
+            return command.__repr__()
+
         if isinstance(command, (FunctionType, MethodType)):
             return f'Python function: {self.command}; Args: {self.arguments}'
 
@@ -140,4 +144,4 @@ class Command:
             command = _parse_str_command(command, self.arguments)
             return command
 
-        raise ValueError(f'Unknown command type: {command}')
+        raise ValueError(f'Unknown command type: {type(command)}')
