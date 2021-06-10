@@ -23,6 +23,18 @@ def _get_patched_environ() -> Dict[str, str]:
     return env
 
 
+def keyboard_interrupt_handler(callback, sub_command):
+    try:
+        callback()
+    except KeyboardInterrupt:
+        try:
+            sub_command.terminate()
+            logging.info('Terminated')
+        except KeyboardInterrupt:
+            sub_command.kill()
+            logging.info('Killed')
+
+
 class StrSubCommand:
     def __init__(
         self,
@@ -59,21 +71,16 @@ class StrSubCommand:
             raise RuntimeError(f'Process returned with status code {return_code}')
 
     def __call__(self) -> None:
+        def parallel_printer():
+            output_printer.start()
+            assert self.sub_command.poll() is not None, 'Output printing loop should not exit before the process is done'
+
         if not self.parallel:
-            self.sub_command.wait()
+            keyboard_interrupt_handler(self.sub_command.wait, self.sub_command)
             return self.sub_command.returncode
 
         output_printer = ShellPrinter(self.sub_command, self.print_prefix)
-        try:
-            output_printer.start()
-            assert self.sub_command.poll() is not None, 'Output printing loop should not exit before the process is done'
-        except KeyboardInterrupt:
-            try:
-                self.sub_command.terminate()
-                logging.info('Terminated')
-            except KeyboardInterrupt:
-                self.sub_command.kill()
-                logging.info('Killed')
+        keyboard_interrupt_handler(parallel_printer, self.sub_command)
 
         self._handle_error(self.sub_command.returncode)
         return self.sub_command.returncode

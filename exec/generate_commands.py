@@ -14,9 +14,12 @@ def example_func(*args):
 
 
 def long_py_func(*_):
-    print('This is a long python command')
-    sleep(2)
-    print('Long python command done')
+    try:
+        print('This is a long python command')
+        sleep(2)
+        print('Long python command done')
+    except KeyboardInterrupt:
+        pass
 
 
 def generate_commands() -> Dict[str, Command]:
