@@ -4,7 +4,7 @@ It can run workflows of multiple commands with arguments such running commands i
 
 # Quick start
 1) Run "python -m exec.main" to get the help text and list of available commands.
-2) To wun a command, write e.g. "python -m exec.main test-print"
+2) To run a command, write e.g. "python -m exec.main test-print"
 3) To view what a command would execute, write e.g. "python -m exec.main test-print --print"
 4) Open generate_commands.py, use some existing command as a template and start automating your tasks!
 
