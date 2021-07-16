@@ -1,26 +1,24 @@
 # Purpose
+This project aims to act as an easily customizable shell command tool that is capable of both aliasing and running workflows.  
+It can run workflows of multiple commands with arguments such running commands in parallel and stopping or not stopping when a command returns with an error code.
+
+# Quick start
+1) Run "python -m exec.main" to get the help text and list of available commands.
+2) To wun a command, write e.g. "python -m exec.main test-print"
+3) To view what a command would execute, write e.g. "python -m exec.main test-print --print"
+4) Open generate_commands.py, use some existing command as a template and start automating your tasks!
 
 # Config
-There are multiple ways to configure the COMMANDS dict.  
-Keys of the dict are the command names user can write to shell.  
-Values are either executed in the shell (str) or python (functions, methods). Lists are also a valid data type and each list element is executed once.
+The software is customized via generate_commands.py file where generate_commands function returns the commands dict.  
+Commands dict:
+* Key: command names (which the user can write to shell)  
+* Values: command objects have "command" property. This is executed either in the shell (strings) or python (functions, methods). Lists are used to chain and nest commands.
 
 # Security
 WARNING: This script executes subprocess with a shell.  
 It does not automatically validate shell inputs and thus should only be used locally.  
 Otherwise this opens up a shell command injection vulnerability.
 
-# Valid command formats
-* String: Interpreted as a shell command
-* Python function or method with a single argument
-    * Runs the function with argparse namespace as the argument. This namespace contains e.g. the command line arguments given.
-* List: list of commands are run in order.
-    * By default, stops the execution if any of the command raise an exception or return a non-zero exit code (shell).
-* Dict: provides an option to input further flags.
-    * The actual commands run are in key 'command'.
-    * Currently implemented:
-        * except_return_status: Ignore exceptions and non-zero exit codes when running a list of commands.
-        * description: Printed with help texts
 
 # Program architecture (aspirational diagram)
 ```mermaid
