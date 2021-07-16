@@ -88,15 +88,15 @@ def generate_commands() -> Dict[str, Command]:
 
     commands = {
         # Setup
-        'python-setup': {
-            'command': [
+        'python-setup': Command(
+            command=[
                 'python -m pip install --upgrade pip',
                 'python -m pip install --upgrade'
                 ' bandit black coverage flake8 isort pre-commit pylint safety'  # Packages used in example commands
                 ' virtualenv requests pandas jupyter aiohttp matplotlib',  # Other useful packages
             ],
-            'description': 'Upgrades pip, packages used by this tool and some other basic packages',
-        },
+            description='Upgrades pip, packages used by this tool and some other basic packages',
+        ),
         # Docker
         'udev': 'docker attach ubuntu-dev',
         'udev-bash': 'docker exec -it ubuntu-dev /bin/bash',
@@ -106,28 +106,28 @@ def generate_commands() -> Dict[str, Command]:
         'udev-build': f'docker-compose --file={udev_yaml} build',
         'udev-compose': f'docker-compose --file={udev_yaml}',
         # Other
-        'test-print': {'command': 'echo Working', 'description': 'Echoes "Working". Example of a hello world command.'},
-        'test-print-list': {'command': ['echo Working once', 'echo Working twice'], 'description': 'Runs multiple commands in row'},
-        'test-python': {'command': example_func, 'description': 'Example of a python command. Echoes back given arguments object'},
-        'test-parallel': {
-            'command': [
+        'test-print': Command(command='echo Working', description='Echoes "Working". Example of a hello world command.'),
+        'test-print-list': Command(command=['echo Working once', 'echo Working twice'], description='Runs multiple commands in row'),
+        'test-python': Command(command=example_func, description='Example of a python command. Echoes back given arguments object'),
+        'test-parallel': Command(
+            command=[
                 'echo Long call starting && timeout 1 > nul && echo Long call done',
                 long_py_func,
                 'echo Hi, am I interrupting?',
             ],
-            'parallel': True,
-        },
-        'test-non-parallel': {
-            'command': [
+            parallel=True,
+        ),
+        'test-non-parallel': Command(
+            command=[
                 'echo Long call starting && timeout 1 > nul && echo Long call done',
                 long_py_func,
                 'echo Hi, am I interrupting?',
-            ],
-        },
-        'git-update': {
-            'command': ['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
-            'description': 'Shortcut for pulling git master with stashing',
-        },
+            ]
+        ),
+        'git-update': Command(
+            command=['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
+            description='Shortcut for pulling git master with stashing',
+        ),
     }
 
     commands['py-quality'] = {
