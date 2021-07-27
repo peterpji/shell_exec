@@ -1,27 +1,29 @@
-import argparse
 import ctypes
 import logging
 import platform
 import sys
 
 from exec.command import Command
+from exec.cli import parse_sys_args
 from exec.generate_commands import generate_commands
 
 COMMANDS = generate_commands()
 
 
-def command_list(as_string=False):
-    commands = list(COMMANDS.keys())
-    commands.sort()
-
-    if as_string:
+def _get_command_list(as_string=False) -> list:
+    def convert_to_cli_output_format(commands) -> list[str]:
         commands_parsed = []
         for command in commands:
             if COMMANDS[command].description:
                 command = f'{command.ljust(25)} ; {COMMANDS[command].description}'
             commands_parsed.append(command)
+        return commands_parsed
 
-        commands = '\n' + '\n'.join(commands_parsed)
+    commands = list(COMMANDS.keys())
+    commands.sort()
+
+    if as_string:
+        commands = '\n' + '\n'.join(convert_to_cli_output_format(commands))
 
     return commands
 
@@ -37,25 +39,14 @@ def main():
     You can get this to your local PATH by installing this as a python package (run 'pip install .' on the project root directory).
     """
 
-    def parse_sys_argv():
-        parser = argparse.ArgumentParser()
-        parser.description = f'This is a tool for abstracting long to write or complicated shell commands. Available commands: {command_list()}'
-        parser.add_argument('--print', action='store_true', default=False, help='Print out the command instead of executing')
-        parser.add_argument('--confirmation', action='store_true', default=False, help='Print the command and ask for confirmation before executing')
-        parser.add_argument('command_name', nargs='?')
-        parser.add_argument('command_args', nargs='*')
-        arguments, unknown_kwargs = parser.parse_known_args()
-        arguments.command_args += unknown_kwargs
-        return arguments
-
     def print_help():
         print(f'This is {__file__}')
         print()
-        print(f'Available commands: {command_list(as_string=True)}')
+        print(f'Available commands: {_get_command_list(as_string=True)}')
         print('For more information, use flag --help\n')
 
     def handle_unrecognized_command():
-        print(f'Unrecognized command. Available commands: {command_list(as_string=True)}\n')
+        print(f'Unrecognized command. Available commands: {_get_command_list(as_string=True)}\n')
 
     def rename_terminal_title(command_name: str):
         """
@@ -82,7 +73,7 @@ def main():
 
         return conf.lower() == 'y'
 
-    arguments = parse_sys_argv()
+    arguments = parse_sys_args(_get_command_list)
 
     if not arguments.command_name:
         print_help()
