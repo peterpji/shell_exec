@@ -6,7 +6,7 @@ from time import sleep
 from typing import Optional
 
 
-def reader(process: Popen, feed_type: str, queue: Queue, print_prefix: int):
+def _reader(process: Popen, feed_type: str, queue: Queue, print_prefix: int):
     def read_line():
         line = getattr(process, feed_type).readline()
         if not line:
@@ -39,7 +39,7 @@ class ShellPrinter:
         self.stderr_reader = self._start_output_reader('stderr')
 
     def _start_output_reader(self, feed: str):
-        output_reader = Thread(target=reader, args=[self.sub_process, feed, self.queue, self.print_prefix])
+        output_reader = Thread(target=_reader, args=[self.sub_process, feed, self.queue, self.print_prefix])
         output_reader.start()
         return output_reader
 

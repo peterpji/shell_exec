@@ -23,7 +23,7 @@ def _get_patched_environ() -> Dict[str, str]:
     return env
 
 
-def keyboard_interrupt_handler(callback, sub_command):
+def _keyboard_interrupt_handler(callback, sub_command):
     try:
         callback()
     except KeyboardInterrupt:
@@ -76,11 +76,11 @@ class StrSubCommand:
             assert self.sub_command.poll() is not None, 'Output printing loop should not exit before the process is done'
 
         if not self.parallel:
-            keyboard_interrupt_handler(self.sub_command.wait, self.sub_command)
+            _keyboard_interrupt_handler(self.sub_command.wait, self.sub_command)
             return self.sub_command.returncode
 
         output_printer = ShellPrinter(self.sub_command, self.print_prefix)
-        keyboard_interrupt_handler(parallel_printer, self.sub_command)
+        _keyboard_interrupt_handler(parallel_printer, self.sub_command)
 
         self._handle_error(self.sub_command.returncode)
         return self.sub_command.returncode
