@@ -21,19 +21,19 @@ def captured_output():
 
 class TestBasicFunctionality(unittest.TestCase):
     @patch('exec.main.sys.argv', [os.path.join(os.path.dirname(__file__), 'exec.py'), 'test-print'])
-    @patch('exec.command.subprocess.run')
+    @patch('exec.str_sub_command.str_sub_command.Popen')
     def test_single_command(self, mock_shell):
         main()
         self.assertEqual(mock_shell.call_args_list[0][0][0], 'echo Working')
 
     @patch('exec.main.sys.argv', [os.path.join(os.path.dirname(__file__), 'exec.py'), 'test-print', '123'])
-    @patch('exec.command.subprocess.run')
+    @patch('exec.str_sub_command.str_sub_command.Popen')
     def test_single_command_with_args(self, mock_shell):
         main()
         self.assertEqual(mock_shell.call_args_list[0][0][0], 'echo Working 123')
 
     @patch('exec.main.sys.argv', [os.path.join(os.path.dirname(__file__), 'exec.py'), 'test-print-list'])
-    @patch('exec.command.subprocess.run')
+    @patch('exec.str_sub_command.str_sub_command.Popen')
     def test_list(self, mock_shell):
         main()
 
@@ -44,7 +44,7 @@ class TestBasicFunctionality(unittest.TestCase):
         self.assertEqual(len(mock_shell.call_args_list), len(expectation))
 
     @patch('exec.main.sys.argv', [os.path.join(os.path.dirname(__file__), 'exec.py'), 'test-print-list', '123'])
-    @patch('exec.command.subprocess.run')
+    @patch('exec.str_sub_command.str_sub_command.Popen')
     def test_list_with_args(self, mock_shell):
         main()
 
