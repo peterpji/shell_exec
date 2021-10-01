@@ -109,7 +109,6 @@ class Command:
                     },
                 )
                 process.start()
-                # TODO Notify user if parallel process exits with return_code != 0
             else:
                 # Using "Process" here would standardize how the commands work but it would disable sys.stdin piping.
                 process = run_str_sub_command(
