@@ -61,7 +61,7 @@ def generate_commands() -> Dict[str, Command]:
             'command': for_py_repos('bandit --skip=B101,B404,B602 -r'),
             'except_return_status': True,
         },
-        'black': for_py_repos('black --line-length=150 --skip-string-normalization --exclude=logs/'),
+        'black': for_py_repos('black --line-length=120 --skip-string-normalization --exclude=logs/'),
         'coverage': [f'python -m coverage run --source={exec_repo} -m unittest discover', 'python -m coverage report'],
         'flake8-show-stoppers': {  # Most critical issues
             'command': for_py_repos('flake8 --count --statistics --select=E9,F63,F7,F82 --show-source'),
@@ -73,7 +73,7 @@ def generate_commands() -> Dict[str, Command]:
             ),
             'except_return_status': True,
         },
-        'isort': for_py_repos('isort --profile=black --line-length=150 .', cd=True),
+        'isort': for_py_repos('isort --profile=black --line-length=120 .', cd=True),
         'pre-commit': {'command': for_py_repos('pre-commit run -a', cd=True), 'except_return_status': True},
         'pylint': f'cd {os.path.join(exec_repo, "..")} && python -m pylint --ignore=.eggs {exec_repo}',
         'safety': f'safety check --full-report --file={os.path.join(exec_repo, "requirements.txt")}',
