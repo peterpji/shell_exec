@@ -68,7 +68,9 @@ def generate_commands() -> Dict[str, Command]:
             'except_return_status': True,
         },
         'flake8': {
-            'command': for_py_repos('flake8 --count --statistics --max-complexity=10 --ignore=W503,E203,E226,E402,E501'),
+            'command': for_py_repos(
+                'flake8 --count --statistics --max-complexity=10 --ignore=W503,E203,E226,E402,E501'
+            ),
             'except_return_status': True,
         },
         'isort': for_py_repos('isort --profile=black --line-length=150 .', cd=True),
@@ -79,7 +81,7 @@ def generate_commands() -> Dict[str, Command]:
 
     commands_js_code_quality = {
         'eslint': {
-            'command': for_js_repos('eslint ./src/** --fix --config=.eslintrc-fix', cd=True),
+            'command': for_js_repos('eslint ./src/ --fix --config=.eslintrc-fix', cd=True),
             'except_return_status': True,
         },
         'prettier': for_js_repos('prettier --write ./src/', cd=True),
@@ -106,9 +108,15 @@ def generate_commands() -> Dict[str, Command]:
         'udev-build': f'docker-compose --file={udev_yaml} build',
         'udev-compose': f'docker-compose --file={udev_yaml}',
         # Other
-        'test-print': Command(command='echo Working', description='Echoes "Working". Example of a hello world command.'),
-        'test-print-list': Command(command=['echo Working once', 'echo Working twice'], description='Runs multiple commands in row'),
-        'test-python': Command(command=example_func, description='Example of a python command. Echoes back given arguments object'),
+        'test-print': Command(
+            command='echo Working', description='Echoes "Working". Example of a hello world command.'
+        ),
+        'test-print-list': Command(
+            command=['echo Working once', 'echo Working twice'], description='Runs multiple commands in row'
+        ),
+        'test-python': Command(
+            command=example_func, description='Example of a python command. Echoes back given arguments object'
+        ),
         'test-parallel': Command(
             command=[
                 'echo Long call starting && timeout 1 > nul && echo Long call done',
