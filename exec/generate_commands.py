@@ -57,33 +57,31 @@ def generate_commands() -> Dict[str, Command]:
     exec_repo = os.path.join(FILE_DIR, '..')
 
     commands_py_code_quality = {
-        'bandit': {
-            'command': for_py_repos('bandit --skip=B101,B404,B602 -r'),
-            'except_return_status': True,
-        },
+        'bandit': Command(
+            command=for_py_repos('bandit --skip=B101,B404,B602 -r'),
+            except_return_status=True,
+        ),
         'black': for_py_repos('black --line-length=120 --skip-string-normalization --exclude=logs/'),
         'coverage': [f'python -m coverage run --source={exec_repo} -m unittest discover', 'python -m coverage report'],
-        'flake8-show-stoppers': {  # Most critical issues
-            'command': for_py_repos('flake8 --count --statistics --select=E9,F63,F7,F82 --show-source'),
-            'except_return_status': True,
-        },
-        'flake8': {
-            'command': for_py_repos(
-                'flake8 --count --statistics --max-complexity=10 --ignore=W503,E203,E226,E402,E501'
-            ),
-            'except_return_status': True,
-        },
+        'flake8-show-stoppers': Command(  # Most critical issues
+            command=for_py_repos('flake8 --count --statistics --select=E9,F63,F7,F82 --show-source'),
+            except_return_status=True,
+        ),
+        'flake8': Command(
+            command=for_py_repos('flake8 --count --statistics --max-complexity=10 --ignore=W503,E203,E226,E402,E501'),
+            except_return_status=True,
+        ),
         'isort': for_py_repos('isort --profile=black --line-length=120 .', cd=True),
-        'pre-commit': {'command': for_py_repos('pre-commit run -a', cd=True), 'except_return_status': True},
+        'pre-commit': Command(command=for_py_repos('pre-commit run -a', cd=True), except_return_status=True),
         'pylint': f'cd {os.path.join(exec_repo, "..")} && python -m pylint --ignore=.eggs {exec_repo}',
         'safety': f'safety check --full-report --file={os.path.join(exec_repo, "requirements.txt")}',
     }
 
     commands_js_code_quality = {
-        'eslint': {
-            'command': for_js_repos('eslint ./src/ --fix --config=.eslintrc-fix', cd=True),
-            'except_return_status': True,
-        },
+        'eslint': Command(
+            command=for_js_repos('eslint ./src/ --fix --config=.eslintrc-fix', cd=True),
+            except_return_status=True,
+        ),
         'prettier': for_js_repos('prettier --write ./src/', cd=True),
         'npm-audit': for_js_repos('npm audit', cd=True),
     }
