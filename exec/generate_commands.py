@@ -56,7 +56,7 @@ def generate_commands() -> Dict[str, Command]:
     udev_yaml = os.path.join(FILE_DIR, '..', '..', 'docker', 'ubuntu_dev', 'docker-compose.yml')
     exec_repo = os.path.join(FILE_DIR, '..')
 
-    commads_py_code_quality = {
+    commands_py_code_quality = {
         'bandit': {
             'command': for_py_repos('bandit --skip=B101,B404,B602 -r'),
             'except_return_status': True,
@@ -140,13 +140,13 @@ def generate_commands() -> Dict[str, Command]:
 
     commands['py-quality'] = {
         'command': [
-            commads_py_code_quality['isort'],
-            commads_py_code_quality['black'],
-            commads_py_code_quality['flake8'],
-            commads_py_code_quality['pylint'],
-            commads_py_code_quality['pre-commit'],
-            commads_py_code_quality['safety'],
-            commads_py_code_quality['bandit'],
+            commands_py_code_quality['isort'],
+            commands_py_code_quality['black'],
+            commands_py_code_quality['flake8'],
+            commands_py_code_quality['pylint'],
+            commands_py_code_quality['pre-commit'],
+            commands_py_code_quality['safety'],
+            commands_py_code_quality['bandit'],
         ],
         'except_return_status': True,
     }
