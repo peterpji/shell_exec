@@ -87,8 +87,9 @@ def generate_commands() -> Dict[str, Command]:
             command=for_js_repos('eslint ./src/ --fix --config=.eslintrc-fix', cd=True),
             except_return_status=True,
         ),
-        'prettier': for_js_repos('prettier --write ./src/', cd=True),
+        'prettier': for_js_repos('prettier --write src', cd=True),
         'npm-audit': for_js_repos('npm audit', cd=True),
+        'npm-audit-fix': for_js_repos('npm audit fix', cd=True),
     }
 
     commands = {
