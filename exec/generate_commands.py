@@ -62,7 +62,10 @@ def generate_commands() -> Dict[str, Command]:
             except_return_status=True,
         ),
         'black': for_py_repos('black --line-length=120 --skip-string-normalization --exclude=logs/'),
-        'coverage': [f'python -m coverage run --source={exec_repo} -m unittest discover', 'python -m coverage report'],
+        'coverage': [
+            f'python -m coverage run --source={exec_repo} -m unittest discover',
+            'python -m coverage report',
+        ],
         'flake8-show-stoppers': Command(  # Most critical issues
             command=for_py_repos('flake8 --count --statistics --select=E9,F63,F7,F82 --show-source'),
             except_return_status=True,
@@ -71,9 +74,11 @@ def generate_commands() -> Dict[str, Command]:
             command=for_py_repos('flake8 --count --statistics --max-complexity=10 --ignore=W503,E203,E226,E402,E501'),
             except_return_status=True,
         ),
-        'isort': for_py_repos('isort --profile=black --line-length=120 .', cd=True),
+        'isort': for_py_repos('python -m isort --profile=black --line-length=120 .', cd=True),
         'pre-commit': Command(command=for_py_repos('pre-commit run -a', cd=True), except_return_status=True),
-        'pylint': f'cd {os.path.join(exec_repo, "..")} && python -m pylint --ignore=.eggs {exec_repo}',
+        'pylint': for_py_repos(
+            f'cd {os.path.join(exec_repo, "..")} && python -m pylint --exit-zero --ignore=.eggs {exec_repo}'
+        ),
         'safety': f'safety check --full-report --file={os.path.join(exec_repo, "requirements.txt")}',
     }
 
