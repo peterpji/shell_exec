@@ -12,15 +12,21 @@
         "plugin:@typescript-eslint/recommended"
     ],
     "rules": {
-        "no-extra-boolean-cast": "warn",
-        "no-extra-semi": "warn",
+        "no-debugger": "warn",
         "eqeqeq": "warn",
-        "prefer-const": "warn",
-        "no-useless-escape": "warn",
+        "prefer-const": "off", // Should this be warn? Issue when spreading and some vars should be let and some const
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/ban-ts-comment": "off",
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": [
+            "warn",
+            {
+                "argsIgnorePattern": "^_",
+                "varsIgnorePattern": "^_"
+            }
+        ],
         "import/order": [
             "warn",
             {
