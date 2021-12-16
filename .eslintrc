@@ -12,6 +12,12 @@
         "plugin:@typescript-eslint/recommended"
     ],
     "rules": {
+        "max-lines": [
+            "error",
+            {
+                "max": 300
+            }
+        ],
         "no-debugger": "warn",
         "eqeqeq": "warn",
         "prefer-const": "off", // Should this be warn? Issue when spreading and some vars should be let and some const
