@@ -66,5 +66,8 @@ class SavedCommands:
             'delete-command': Command(self.delete_command),
         }
         self.external_commands_dict.update(use_commands)
-        saved_commands_dict = {command_name: Command(command=command_code) for command_name, command_code in self.saved_commands_dict.items()}
+        saved_commands_dict = {
+            command_name: Command(command=command_code)
+            for command_name, command_code in self.saved_commands_dict.items()
+        }
         self.external_commands_dict.update(saved_commands_dict)
