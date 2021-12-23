@@ -12,6 +12,8 @@
         "plugin:@typescript-eslint/recommended"
     ],
     "rules": {
+        // "dot-notation": "warn",
+        // "no-else-return": "warn",
         "max-lines": [
             "error",
             {
@@ -21,6 +23,7 @@
         "no-debugger": "warn",
         "eqeqeq": "warn",
         "prefer-const": "off", // Should this be warn? Issue when spreading and some vars should be let and some const
+        "no-unneeded-ternary": "error",
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-explicit-any": "off",
@@ -33,6 +36,7 @@
                 "varsIgnorePattern": "^_"
             }
         ],
+        "cypress/no-unnecessary-waiting": "off",
         "import/order": [
             "warn",
             {
