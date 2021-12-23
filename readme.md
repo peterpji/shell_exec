@@ -48,3 +48,14 @@ SubCommandInterface <|-- StrSubCommand
 SubCommandInterface <|-- ListSubCommand
 SubCommandInterface <|-- PythonNativeSubCommand
 ```
+
+# Other notes
+## NPM code quality setup
+"devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.2.0",
+    "@typescript-eslint/parser": "^5.2.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-import": "^2.24.2",
+    "prettier": "^2.4.1",
+    "typescript": "^4.4.4"
+}
