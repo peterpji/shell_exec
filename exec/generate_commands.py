@@ -3,7 +3,7 @@ from typing import Dict
 
 from exec.command import Command
 from exec.commands_dict import get_commands
-from exec.saved_commands import SavedCommands
+from exec.saved_commands import add_saved_commands_functionality
 
 FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -14,7 +14,7 @@ def generate_commands() -> Dict[str, Command]:
     """
 
     commands = get_commands()
-    SavedCommands(commands)  # TODO Make into a function
+    commands = add_saved_commands_functionality(commands)
     commands = _convert_to_command_objects(commands)
     return commands
 
