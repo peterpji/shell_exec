@@ -10,24 +10,6 @@ from exec.generate_commands import generate_commands
 COMMANDS = generate_commands()
 
 
-def _get_command_list(as_string=False) -> list:
-    def convert_to_cli_output_format(commands) -> list[str]:
-        commands_parsed = []
-        for command in commands:
-            if COMMANDS[command].description:
-                command = f'{command.ljust(25)} ; {COMMANDS[command].description}'
-            commands_parsed.append(command)
-        return commands_parsed
-
-    commands = list(COMMANDS.keys())
-    commands.sort()
-
-    if as_string:
-        commands = '\n' + '\n'.join(convert_to_cli_output_format(commands))
-
-    return commands
-
-
 def main():
     """
     WARNING: This script executes subprocess with a shell.
@@ -97,6 +79,24 @@ def main():
         return
 
     command.execute()
+
+
+def _get_command_list(as_string=False) -> list:
+    def convert_to_cli_output_format(commands) -> list[str]:
+        commands_parsed = []
+        for command in commands:
+            if COMMANDS[command].description:
+                command = f'{command.ljust(25)} ; {COMMANDS[command].description}'
+            commands_parsed.append(command)
+        return commands_parsed
+
+    commands = list(COMMANDS.keys())
+    commands.sort()
+
+    if as_string:
+        commands = '\n' + '\n'.join(convert_to_cli_output_format(commands))
+
+    return commands
 
 
 if __name__ == '__main__':
