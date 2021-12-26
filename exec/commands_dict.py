@@ -20,7 +20,7 @@ def _long_py_func(*_):
         pass
 
 
-def get_commands():
+def get_commands_base():
     udev_yaml = os.path.join(FILE_DIR, '..', '..', 'docker', 'ubuntu_dev', 'docker-compose.yml')
 
     commands = {

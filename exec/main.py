@@ -4,9 +4,9 @@ from exec.cli.ask_exec_confirmation import ask_exec_confirmation
 from exec.cli.parse_input_args import parse_input_args
 from exec.cli.rename_terminal_title import rename_terminal_title
 from exec.cli.user_help import handle_unrecognized_command, print_help
-from exec.generate_commands import generate_commands
+from exec.get_commands_parsed import get_commands_parsed
 
-COMMANDS = generate_commands()
+COMMANDS = get_commands_parsed()
 
 
 def main():
