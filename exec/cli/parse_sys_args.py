@@ -1,6 +1,8 @@
 import argparse
 from dataclasses import dataclass
-from typing import Optional
+from typing import Dict, Optional
+
+from exec.command import Command
 
 
 @dataclass
@@ -11,9 +13,12 @@ class Arguments:
     command_args: list[str]
 
 
-def parse_sys_args(command_list_with_help: str) -> Arguments:
+def parse_sys_args(commands: Dict[str, Command]) -> Arguments:
+    command_keys = list(commands.keys())
+    command_keys.sort()
+
     parser = argparse.ArgumentParser()
-    parser.description = f'This is a tool for abstracting long to write or complicated shell commands. Available commands: {command_list_with_help}'
+    parser.description = f'This is a tool for abstracting long to write or complicated shell commands. Available commands: {command_keys}'
     parser.add_argument(
         '--print', action='store_true', default=False, help='Print out the command instead of executing'
     )
