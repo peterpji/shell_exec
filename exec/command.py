@@ -7,13 +7,6 @@ from typing import List, Optional, Union
 
 from exec.str_sub_command.str_sub_command import run_str_sub_command
 
-try:
-    import colorama  # A library fixing shell formating for windows.
-
-    colorama.init()
-except Exception:
-    logging.debug('Colorama not initialized')
-
 command_low_level_type = Union[FunctionType, MethodType, str, list]
 
 
