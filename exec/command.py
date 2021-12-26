@@ -10,22 +10,6 @@ from exec.str_sub_command.str_sub_command import run_str_sub_command
 command_low_level_type = Union[FunctionType, MethodType, str, list]
 
 
-def _parse_str_command(str_sub_command: str, arguments: Optional[List[str]] = None):
-    def localize_str_command(str_sub_command):
-        if platform.system() == 'Windows':
-            str_sub_command = str_sub_command.replace('~', '%userprofile%')
-        return str_sub_command
-
-    if not isinstance(str_sub_command, str):
-        raise ValueError('Command is not a string')
-
-    arguments = arguments or []
-
-    str_sub_command = ' '.join([str_sub_command] + arguments)
-    str_sub_command = localize_str_command(str_sub_command)
-    return str_sub_command
-
-
 class Command:
     arguments: Optional[List[str]]
 
@@ -45,21 +29,21 @@ class Command:
         self.command_stack: List[Union[subprocess.CompletedProcess, subprocess.Popen, Process]] = []
 
     def execute(self) -> None:
-        def check_all_sub_commands_are_complete():
-            if not self.parallel:
-                return
+        self._execute_sub_command(self.command)
+        self._check_all_sub_commands_are_complete()
+
+    def _check_all_sub_commands_are_complete(self):
+        if not self.parallel:
+            return
+        try:
+            _ = [command.join() for command in self.command_stack if isinstance(command, Process)]
+        except KeyboardInterrupt:
+            print('Terminate command sent to the processes. Waiting for graceful exit')
             try:
                 _ = [command.join() for command in self.command_stack if isinstance(command, Process)]
             except KeyboardInterrupt:
-                print('Terminate command sent to the processes. Waiting for graceful exit')
-                try:
-                    _ = [command.join() for command in self.command_stack if isinstance(command, Process)]
-                except KeyboardInterrupt:
-                    print('Kill command sent to the processes. Waiting for exit')
-                    _ = [command.join() for command in self.command_stack if isinstance(command, Process)]
-
-        self._execute_sub_command(self.command)
-        check_all_sub_commands_are_complete()
+                print('Kill command sent to the processes. Waiting for exit')
+                _ = [command.join() for command in self.command_stack if isinstance(command, Process)]
 
     def _execute_sub_command(self, sub_command: command_low_level_type) -> None:
         if isinstance(sub_command, Command):
@@ -90,11 +74,11 @@ class Command:
 
         if isinstance(sub_command, str):
             logging.info('Running: %s', sub_command)
-            sub_command = _parse_str_command(sub_command, self.arguments)
+            sub_command_with_args = _parse_str_command(sub_command, self.arguments)
             if self.parallel:
                 process = Process(
                     target=run_str_sub_command,
-                    args=[sub_command],
+                    args=[sub_command_with_args],
                     kwargs={
                         'parallel': self.parallel,
                         'except_return_status': self.except_return_status,
@@ -137,3 +121,19 @@ class Command:
             return command
 
         raise ValueError(f'Unknown command type: {type(command)}')
+
+
+def _parse_str_command(str_sub_command: str, arguments: Optional[List[str]] = None):
+    def localize_str_command(str_sub_command):
+        if platform.system() == 'Windows':
+            str_sub_command = str_sub_command.replace('~', '%userprofile%')
+        return str_sub_command
+
+    if not isinstance(str_sub_command, str):
+        raise ValueError('Command is not a string')
+
+    arguments = arguments or []
+
+    str_sub_command = ' '.join([str_sub_command] + arguments)
+    str_sub_command = localize_str_command(str_sub_command)
+    return str_sub_command
