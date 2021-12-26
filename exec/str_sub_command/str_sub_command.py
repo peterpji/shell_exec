@@ -11,50 +11,10 @@ from exec.str_sub_command.printer import ShellPrinter
 command_low_level_type = Union[FunctionType, MethodType, str, list]
 
 
-def _get_patched_environ() -> Dict[str, str]:
-    def win_add_ssh_to_path(env):
-        system32 = os.path.join(
-            os.environ['SystemRoot'],
-            'SysNative' if platform.architecture()[0] == '32bit' else 'System32',
-        )
-        ssh_path = os.path.join(system32, 'OpenSSH')
-        env['PATH'] += ';' + ssh_path
-
-    env = os.environ.copy()
-    if platform.system() == 'Windows':
-        win_add_ssh_to_path(env)
-    return env
-
-
-def _parse_popen_kwargs(parallel: bool) -> dict[str, Any]:
-    subprocess_kwargs = {'shell': True, 'env': _get_patched_environ()}
-
-    if parallel:
-        kwargs = {
-            **subprocess_kwargs,
-            'stdout': PIPE,
-            'stderr': PIPE,
-        }
-    else:  # Avoiding pipe has some benefits, e.g. printing with color to the console as a default on some software
-        kwargs = {
-            **subprocess_kwargs,
-            'stdin': sys.stdin,
-            'stdout': sys.stdout,
-            'stderr': sys.stderr,
-        }
-    return kwargs
-
-
-def _keyboard_interrupt_handler(callback, sub_command):
-    try:
-        callback()
-    except KeyboardInterrupt:
-        try:
-            sub_command.terminate()
-            logging.info('Terminated')
-        except KeyboardInterrupt:
-            sub_command.kill()
-            logging.info('Killed')
+def run_str_sub_command(command: str, **kwargs):
+    executable = StrSubCommand(command, **kwargs)
+    executable()
+    return executable
 
 
 class StrSubCommand:
@@ -95,7 +55,47 @@ class StrSubCommand:
         return self.sub_command.returncode
 
 
-def run_str_sub_command(command: str, **kwargs):
-    executable = StrSubCommand(command, **kwargs)
-    executable()
-    return executable
+def _keyboard_interrupt_handler(callback, sub_command):
+    try:
+        callback()
+    except KeyboardInterrupt:
+        try:
+            sub_command.terminate()
+            logging.info('Terminated')
+        except KeyboardInterrupt:
+            sub_command.kill()
+            logging.info('Killed')
+
+
+def _parse_popen_kwargs(parallel: bool) -> dict[str, Any]:
+    subprocess_kwargs = {'shell': True, 'env': _get_patched_environ()}
+
+    if parallel:
+        kwargs = {
+            **subprocess_kwargs,
+            'stdout': PIPE,
+            'stderr': PIPE,
+        }
+    else:  # Avoiding pipe has some benefits, e.g. printing with color to the console as a default on some software
+        kwargs = {
+            **subprocess_kwargs,
+            'stdin': sys.stdin,
+            'stdout': sys.stdout,
+            'stderr': sys.stderr,
+        }
+    return kwargs
+
+
+def _get_patched_environ() -> Dict[str, str]:
+    def win_add_ssh_to_path(env):
+        system32 = os.path.join(
+            os.environ['SystemRoot'],
+            'SysNative' if platform.architecture()[0] == '32bit' else 'System32',
+        )
+        ssh_path = os.path.join(system32, 'OpenSSH')
+        env['PATH'] += ';' + ssh_path
+
+    env = os.environ.copy()
+    if platform.system() == 'Windows':
+        win_add_ssh_to_path(env)
+    return env
