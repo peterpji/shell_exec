@@ -1,7 +1,7 @@
 import logging
 
 from exec.cli.ask_exec_confirmation import ask_exec_confirmation
-from exec.cli.parse_sys_args import parse_sys_args
+from exec.cli.parse_input_args import parse_input_args
 from exec.cli.rename_terminal_title import rename_terminal_title
 from exec.cli.user_help import handle_unrecognized_command, print_help
 from exec.generate_commands import generate_commands
@@ -20,7 +20,7 @@ def main():
     You can get this to your local PATH by installing this as a python package (run 'pip install .' on the project root directory).
     """
 
-    arguments = parse_sys_args(COMMANDS)
+    arguments = parse_input_args(COMMANDS)
 
     if not arguments.command_name:
         print_help(COMMANDS)

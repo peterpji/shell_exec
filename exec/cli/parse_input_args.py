@@ -13,7 +13,7 @@ class Arguments:
     command_args: list[str]
 
 
-def parse_sys_args(commands: Dict[str, Command]) -> Arguments:
+def parse_input_args(commands: Dict[str, Command]) -> Arguments:
     command_keys = list(commands.keys())
     command_keys.sort()
 
