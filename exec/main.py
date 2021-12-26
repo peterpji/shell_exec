@@ -2,9 +2,10 @@ import ctypes
 import logging
 import platform
 import sys
+from typing import Dict
 
 from exec.command import Command
-from exec.cli import parse_sys_args
+from exec.parse_sys_args import parse_sys_args
 from exec.generate_commands import generate_commands
 
 COMMANDS = generate_commands()
@@ -24,11 +25,11 @@ def main():
     def print_help():
         print(f'This is {__file__}')
         print()
-        print(f'Available commands: {_get_command_list(as_string=True)}')
+        print(f'Available commands: {_parse_command_list_with_help(COMMANDS)}')
         print('For more information, use flag --help\n')
 
     def handle_unrecognized_command():
-        print(f'Unrecognized command. Available commands: {_get_command_list(as_string=True)}\n')
+        print(f'Unrecognized command. Available commands: {_parse_command_list_with_help(COMMANDS)}\n')
 
     def rename_terminal_title(command_name: str):
         """
@@ -55,7 +56,7 @@ def main():
 
         return conf.lower() == 'y'
 
-    arguments = parse_sys_args(_get_command_list)
+    arguments = parse_sys_args(_parse_command_list_with_help(COMMANDS))
 
     if not arguments.command_name:
         print_help()
@@ -81,22 +82,19 @@ def main():
     command.execute()
 
 
-def _get_command_list(as_string=False) -> list:
-    def convert_to_cli_output_format(commands) -> list[str]:
+def _parse_command_list_with_help(commands: Dict[str, Command]):
+    def convert_to_cli_output_format(command_keys) -> list[str]:
         commands_parsed = []
-        for command in commands:
-            if COMMANDS[command].description:
-                command = f'{command.ljust(25)} ; {COMMANDS[command].description}'
+        for command in command_keys:
+            if commands[command].description:
+                command = f'{command.ljust(25)} ; {commands[command].description}'
             commands_parsed.append(command)
         return commands_parsed
 
-    commands = list(COMMANDS.keys())
-    commands.sort()
-
-    if as_string:
-        commands = '\n' + '\n'.join(convert_to_cli_output_format(commands))
-
-    return commands
+    command_keys = list(commands.keys())
+    command_keys.sort()
+    commands_string = '\n' + '\n'.join(convert_to_cli_output_format(command_keys))
+    return commands_string
 
 
 if __name__ == '__main__':
