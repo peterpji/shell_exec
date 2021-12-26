@@ -33,8 +33,6 @@ class Command:
         self._check_all_sub_commands_are_complete()
 
     def _check_all_sub_commands_are_complete(self):
-        if not self.parallel:
-            return
         try:
             _ = [command.join() for command in self.command_stack if isinstance(command, Process)]
         except KeyboardInterrupt:
@@ -86,14 +84,14 @@ class Command:
                     },
                 )
                 process.start()
+                self.command_stack.append(process)
             else:
                 # Using "Process" here would standardize how the commands work but it would disable sys.stdin piping.
-                process = run_str_sub_command(
+                run_str_sub_command(
                     sub_command,
                     except_return_status=self.except_return_status,
                     parallel=self.parallel,
                 )
-            self.command_stack.append(process)
             return
 
         raise ValueError(f'Unknown command type {type(sub_command)}: {sub_command}')
