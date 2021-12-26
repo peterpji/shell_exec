@@ -29,7 +29,7 @@ def _reader(process: Popen, feed_type: str, queue: Queue, print_prefix: int):
     read_rest_of_the_queue()
 
 
-class ShellPrinter:
+class ShellPrinterWrapper:
     def __init__(self, sub_process, print_prefix: Optional[int] = None) -> None:
         self.sub_process = sub_process
         self.print_prefix = print_prefix

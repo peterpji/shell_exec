@@ -4,58 +4,48 @@ import platform
 import sys
 from subprocess import PIPE, Popen
 from types import FunctionType, MethodType
-from typing import Any, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union
 
-from exec.str_sub_command.printer import ShellPrinter
+from exec.str_sub_command.printer import ShellPrinterWrapper
 
 command_low_level_type = Union[FunctionType, MethodType, str, list]
 
 
 def run_str_sub_command(command: str, **kwargs):
-    executable = StrSubCommand(command, **kwargs)
-    executable()
-    return executable
+    return _run_str_sub_command(command, **kwargs)
 
 
-class StrSubCommand:
-    def __init__(
-        self,
-        command: str,
-        except_return_status: bool = False,
-        parallel: bool = False,
-        index: Optional[int] = None,
-    ) -> None:
-        self.parallel = parallel
-        self.except_return_status = except_return_status
-        self.print_prefix = '' if index is None else f'[{index}] '
+def _run_str_sub_command(
+    command: str,
+    except_return_status: bool = False,
+    parallel: bool = False,
+    index: Optional[int] = None,
+):
+    def parallel_printer():
+        output_printer.start()
+        assert sub_command.poll() is not None, 'Output printing loop should not exit before the process is done'
 
-        kwargs = _parse_popen_kwargs(parallel)
-        self.sub_command = Popen(command, **kwargs)  # pylint: disable=subprocess-run-check # nosec
+    kwargs = _get_popen_kwargs(parallel)
+    with Popen(command, **kwargs) as sub_command:
+        if not parallel:
+            _keyboard_interrupt_handler(sub_command.wait, sub_command)
+            return sub_command.returncode
 
-    def _handle_error(self, return_code: int):
-        if not self.except_return_status and return_code:
-            sys.tracebacklimit = 0
-            raise RuntimeError(f'Process returned with status code {return_code}')
+        print_prefix = '' if index is None else f'[{index}] '
+        output_printer = ShellPrinterWrapper(sub_command, print_prefix)
+        _keyboard_interrupt_handler(parallel_printer, sub_command)
 
-    def __call__(self) -> None:
-        def parallel_printer():
-            output_printer.start()
-            assert (
-                self.sub_command.poll() is not None
-            ), 'Output printing loop should not exit before the process is done'
-
-        if not self.parallel:
-            _keyboard_interrupt_handler(self.sub_command.wait, self.sub_command)
-            return self.sub_command.returncode
-
-        output_printer = ShellPrinter(self.sub_command, self.print_prefix)
-        _keyboard_interrupt_handler(parallel_printer, self.sub_command)
-
-        self._handle_error(self.sub_command.returncode)
-        return self.sub_command.returncode
+        _handle_error(except_return_status, sub_command.returncode)
+        return sub_command.returncode
 
 
-def _keyboard_interrupt_handler(callback, sub_command):
+def _handle_error(except_return_status: bool, return_code: int):
+    if not except_return_status and return_code:
+        sys.tracebacklimit = 0
+        raise RuntimeError(f'Process returned with status code {return_code}')
+
+
+def _keyboard_interrupt_handler(callback: Callable, sub_command: Popen[str]):
     try:
         callback()
     except KeyboardInterrupt:
@@ -67,7 +57,7 @@ def _keyboard_interrupt_handler(callback, sub_command):
             logging.info('Killed')
 
 
-def _parse_popen_kwargs(parallel: bool) -> dict[str, Any]:
+def _get_popen_kwargs(parallel: bool) -> dict[str, Any]:
     subprocess_kwargs = {'shell': True, 'env': _get_patched_environ()}
 
     if parallel:
