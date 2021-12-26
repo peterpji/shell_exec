@@ -6,29 +6,6 @@ from time import sleep
 from typing import Optional
 
 
-def _reader(process: Popen, feed_type: str, queue: Queue, print_prefix: int):
-    def read_line():
-        line = getattr(process, feed_type).readline()
-        if not line:
-            return False
-        line = print_prefix + line.decode()
-        queue.put((feed_type, line))
-
-        return True
-
-    def read_rest_of_the_queue():
-        while read_line():
-            pass
-
-    while process.poll() is None:
-        new_line_printed = read_line()
-        if not new_line_printed:
-            sleep(0.01)
-
-    sleep(0.01)
-    read_rest_of_the_queue()
-
-
 class ShellPrinterWrapper:
     def __init__(self, sub_process, print_prefix: Optional[int] = None) -> None:
         self.sub_process = sub_process
@@ -58,3 +35,26 @@ class ShellPrinterWrapper:
 
     def start(self):
         self._output_print_loop()
+
+
+def _reader(process: Popen, feed_type: str, queue: Queue, print_prefix: int):
+    def read_line():
+        line = getattr(process, feed_type).readline()
+        if not line:
+            return False
+
+        line = print_prefix + line.decode()
+        queue.put((feed_type, line))
+        return True
+
+    def read_rest_of_the_queue():
+        while read_line():
+            pass
+
+    while process.poll() is None:
+        new_line_printed = read_line()
+        if not new_line_printed:
+            sleep(0.01)
+
+    sleep(0.01)
+    read_rest_of_the_queue()

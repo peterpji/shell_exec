@@ -22,7 +22,9 @@ def _run_str_sub_command(
     index: Optional[int] = None,
 ):
     def parallel_printer():
-        output_printer.start()
+        print_prefix = '' if index is None else f'[{index}] '
+        sub_command_with_printer = ShellPrinterWrapper(sub_command, print_prefix)
+        sub_command_with_printer.start()
         assert sub_command.poll() is not None, 'Output printing loop should not exit before the process is done'
 
     kwargs = _get_popen_kwargs(parallel)
@@ -31,10 +33,7 @@ def _run_str_sub_command(
             _keyboard_interrupt_handler(sub_command.wait, sub_command)
             return sub_command.returncode
 
-        print_prefix = '' if index is None else f'[{index}] '
-        output_printer = ShellPrinterWrapper(sub_command, print_prefix)
         _keyboard_interrupt_handler(parallel_printer, sub_command)
-
         _handle_error(except_return_status, sub_command.returncode)
         return sub_command.returncode
 
