@@ -7,8 +7,6 @@ from exec.cli.rename_terminal_title import rename_terminal_title
 from exec.cli.user_help import handle_unrecognized_command, print_help
 from exec.get_commands_parsed import get_commands_parsed
 
-COMMANDS = get_commands_parsed()
-
 
 def main():
     """
@@ -20,21 +18,22 @@ def main():
     If you need more help, run this script with --help flag.
     You can get this to your local PATH by installing this as a python package (run 'pip install .' on the project root directory).
     """
+    commands = get_commands_parsed()
     prep_shell()
 
-    arguments = parse_input_args(COMMANDS)
+    arguments = parse_input_args(commands)
 
     if not arguments.command_name:
-        print_help(COMMANDS)
+        print_help(commands)
         return
 
-    if arguments.command_name not in COMMANDS:
-        handle_unrecognized_command(COMMANDS)
+    if arguments.command_name not in commands:
+        handle_unrecognized_command(commands)
         return
 
     rename_terminal_title(arguments.command_name)
 
-    command = COMMANDS[arguments.command_name]
+    command = commands[arguments.command_name]
     command.arguments = arguments.command_args
 
     if arguments.print:
