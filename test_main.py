@@ -1,17 +1,26 @@
-import os
+import sys
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, patch
+from functools import wraps
 
 from exec.main import main
 
 
 def patch_input(inputs: list[str]):
-    return patch('exec.main.sys.argv', [os.path.join(os.path.dirname(__file__), 'exec.py'), *inputs])
+    def make_wrapper(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            sys.argv = [sys.argv[0]] + inputs
+            func(*args, **kwargs)
+
+        return wrapper
+
+    return make_wrapper
 
 
 class TestBasicFunctionality(unittest.TestCase):
     def setUp(self) -> None:
-        self.mock_shell = Mock()
+        self.mock_shell = MagicMock()
         patch('exec.str_sub_command.str_sub_command.Popen', self.mock_shell).start()
         return super().setUp()
 
