@@ -45,6 +45,7 @@ class Command:
 
     def _execute_sub_command(self, sub_command: command_low_level_type) -> None:
         if isinstance(sub_command, Command):
+            sub_command.arguments = self.arguments
             sub_command.execute()
             return
 
@@ -55,7 +56,9 @@ class Command:
             return
 
         if isinstance(sub_command, dict):
-            Command(**sub_command).execute()
+            sub_command = Command(**sub_command)
+            sub_command.arguments = self.arguments
+            sub_command.execute()
             return
 
         if isinstance(sub_command, (FunctionType, MethodType)):
@@ -88,7 +91,7 @@ class Command:
             else:
                 # Using "Process" here would standardize how the commands work but it would disable sys.stdin piping.
                 run_str_sub_command(
-                    sub_command,
+                    sub_command_with_args,
                     except_return_status=self.except_return_status,
                     parallel=self.parallel,
                 )
