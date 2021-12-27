@@ -1,9 +1,10 @@
 import sys
 import unittest
-from unittest.mock import MagicMock, patch
+from contextlib import contextmanager
 from functools import wraps
-from exec.command import Command
+from unittest.mock import MagicMock, patch
 
+from exec.command import Command
 from exec.main import main
 
 
@@ -19,10 +20,16 @@ def patch_input(inputs: list[str]):
     return make_wrapper
 
 
+@contextmanager
 def set_commands_base(commands_base):
-    get_commands_base_mock = patch('exec.get_commands_parsed.get_commands_base')
+    get_commands_base_mock = MagicMock()
     get_commands_base_mock.return_value = commands_base
-    get_commands_base_mock.start()
+    patcher = patch('exec.get_commands_parsed.get_commands_base', new=get_commands_base_mock)
+    try:
+        patcher.start()
+        yield
+    finally:
+        patcher.stop()
 
 
 class TestBasicFunctionality(unittest.TestCase):
@@ -33,20 +40,21 @@ class TestBasicFunctionality(unittest.TestCase):
 
     @patch_input(['test-print'])
     def test_single_command(self):
-        set_commands_base({'test-print': Command('echo Working')})
-        main()
+        with set_commands_base({'test-print': Command('echo Working')}):
+            main()
         self.assertEqual(self.mock_shell.call_args_list[0][0][0], 'echo Working')
 
     @patch_input(['test-print', '123'])
     def test_single_command_with_args(self):
-        main()
+        with set_commands_base({'test-print': Command('echo Working')}):
+            main()
         self.assertEqual(self.mock_shell.call_args_list[0][0][0], 'echo Working 123')
 
-    @patch_input(['test-print-list'])
+    @patch_input(['test-print'])
     def test_list(self):
-        main()
-
         expectation = ['echo Working once', 'echo Working twice']
+        with set_commands_base({'test-print': Command(expectation)}):
+            main()
 
         for call, expectation_elem in zip(self.mock_shell.call_args_list, expectation):
             self.assertEqual(call[0][0], expectation_elem)
