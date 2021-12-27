@@ -75,6 +75,7 @@ class TestBasicFunctionality(unittest.TestCase):
     def test_print_command(self, mock_print):
         main()
         self.assertEqual(mock_print.call_args_list[0][0][0].command, 'echo Working')
+        self.assertEqual(len(self.mock_shell.call_args_list), 0)
 
 
 if __name__ == '__main__':
