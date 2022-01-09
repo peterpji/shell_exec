@@ -19,12 +19,15 @@ class Command:
         description: Optional[str] = None,
         except_return_status: bool = False,
         parallel: bool = False,
+        arguments=None,
+        cwd: Optional[str] = None,
     ) -> None:
         self.command = command
         self.description = description
         self.except_return_status = except_return_status
         self.parallel = parallel
-        self.arguments = None
+        self.arguments = arguments
+        self.cwd = cwd
 
         self.command_stack: List[Union[subprocess.CompletedProcess, subprocess.Popen, Process]] = []
 
@@ -51,13 +54,11 @@ class Command:
 
         if isinstance(sub_command, list):
             for elem in sub_command:
-                self.arguments = []
                 self._execute_sub_command(elem)
             return
 
         if isinstance(sub_command, dict):
-            sub_command = Command(**sub_command)
-            sub_command.arguments = self.arguments
+            sub_command = Command(**sub_command, arguments=self.arguments, cwd=self.cwd)
             sub_command.execute()
             return
 
@@ -82,6 +83,7 @@ class Command:
                     args=[sub_command_with_args],
                     kwargs={
                         'parallel': self.parallel,
+                        'cwd': self.cwd,
                         'except_return_status': self.except_return_status,
                         'index': len(self.command_stack),
                     },
@@ -94,6 +96,7 @@ class Command:
                     sub_command_with_args,
                     except_return_status=self.except_return_status,
                     parallel=self.parallel,
+                    cwd=self.cwd,
                 )
             return
 
