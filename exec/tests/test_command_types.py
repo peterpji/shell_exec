@@ -6,21 +6,21 @@ from exec.tests.utils import BaseTestClass, patch_input, set_commands_base
 
 
 class TestBasicFunctionality(BaseTestClass):
-    def test_command_class(self):
+    def test_str(self):
         patch_input(['test-print'])
         with set_commands_base({'test-print': Command('echo Working')}):
             main()
         self.assertEqual(self.mock_shell.call_args_list[0][0][0], 'echo Working')
 
-    def test_dict(self):
+    def test_command_class(self):
         patch_input(['test-print'])
-        with set_commands_base({'test-print': {'command': 'echo Working'}}):
+        with set_commands_base({'test-print': Command(Command('echo Working'))}):
             main()
         self.assertEqual(self.mock_shell.call_args_list[0][0][0], 'echo Working')
 
-    def test_str(self):
+    def test_dict(self):
         patch_input(['test-print'])
-        with set_commands_base({'test-print': 'echo Working'}):
+        with set_commands_base({'test-print': Command({'command': 'echo Working'})}):
             main()
         self.assertEqual(self.mock_shell.call_args_list[0][0][0], 'echo Working')
 
