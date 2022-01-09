@@ -7,12 +7,6 @@ from exec.tests.utils import BaseTestClass, set_commands_base, patch_input
 
 
 class TestBasicFunctionality(BaseTestClass):
-    def test_single_command(self):
-        patch_input(['test-print'])
-        with set_commands_base({'test-print': Command('echo Working')}):
-            main()
-        self.assertEqual(self.mock_shell.call_args_list[0][0][0], 'echo Working')
-
     def test_single_command_with_args(self):
         patch_input(['test-print', '123'])
         with set_commands_base({'test-print': Command('echo Working')}):
