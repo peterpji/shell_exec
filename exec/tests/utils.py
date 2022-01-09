@@ -1,20 +1,11 @@
 import sys
 from contextlib import contextmanager
-from functools import wraps
 import unittest
 from unittest.mock import MagicMock, patch
 
 
 def patch_input(inputs: list[str]):
-    def make_wrapper(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            sys.argv = [sys.argv[0]] + inputs
-            func(*args, **kwargs)
-
-        return wrapper
-
-    return make_wrapper
+    sys.argv = [sys.argv[0]] + inputs
 
 
 @contextmanager
