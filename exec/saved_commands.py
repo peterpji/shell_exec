@@ -49,7 +49,7 @@ def _save_command(arguments: list):
 
 def _save_to_file(saved_commands_dict: Dict[str, Command]) -> None:
     saved_commands_dict_serialized = {k: v.command for k, v in saved_commands_dict.items()}
-    with open(SAVED_COMMANDS_PATH, 'w') as commands_file:
+    with open(SAVED_COMMANDS_PATH, 'w', encoding='utf-8') as commands_file:
         json.dump(saved_commands_dict_serialized, commands_file, indent=4)
 
 
@@ -60,7 +60,7 @@ def _ensure_directory_exists() -> None:
 
 def _load_saved_commands() -> Dict[str, Command]:
     if os.path.isfile(SAVED_COMMANDS_PATH):
-        with open(SAVED_COMMANDS_PATH) as commands_file:
+        with open(SAVED_COMMANDS_PATH, encoding='utf-8') as commands_file:
             saved_commands_dict = json.load(commands_file)
     else:
         saved_commands_dict = {}
