@@ -24,16 +24,6 @@ def get_commands_base():
     udev_yaml = os.path.join(FILE_DIR, '..', '..', 'docker', 'ubuntu_dev', 'docker-compose.yml')
 
     commands = {
-        # Setup
-        'python-setup': Command(
-            command=[
-                'python -m pip install --upgrade pip',
-                'python -m pip install --upgrade'
-                ' bandit black coverage flake8 isort pre-commit pylint safety'  # Packages used in example commands
-                ' virtualenv requests pandas jupyter aiohttp matplotlib',  # Other useful packages
-            ],
-            description='Upgrades pip, packages used by this tool and some other basic packages',
-        ),
         # Docker
         'udev': 'docker attach ubuntu-dev',
         'udev-bash': 'docker exec -it ubuntu-dev /bin/bash',
