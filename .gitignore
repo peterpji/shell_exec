@@ -1,8 +1,15 @@
-*.json
-old_drafts/
+# Genral
+local_*
+local/
+.vscode
 logs/
+*.log
+
+# Python specific
 __pycache__/
-.coverage
 *.egg-info
 .eggs
-.vscode
+.coverage
+
+# Project specific
+*.json
