@@ -1,6 +1,6 @@
 import argparse
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from exec.command import Command
 
@@ -10,7 +10,7 @@ class Arguments:
     print: bool
     confirmation: bool
     command_name: Optional[str]
-    command_args: list[str]
+    command_args: List[str]
 
 
 def parse_input_args(commands: Dict[str, Command]) -> Arguments:

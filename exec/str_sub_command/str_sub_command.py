@@ -45,7 +45,7 @@ def _handle_error(except_return_status: bool, return_code: int):
         raise RuntimeError(f'Process returned with status code {return_code}')
 
 
-def _keyboard_interrupt_handler(callback: Callable, sub_command: Popen[str]):
+def _keyboard_interrupt_handler(callback: Callable, sub_command: Popen):
     try:
         callback()
     except KeyboardInterrupt:
@@ -57,7 +57,7 @@ def _keyboard_interrupt_handler(callback: Callable, sub_command: Popen[str]):
             logging.info('Killed')
 
 
-def _get_popen_kwargs(parallel: bool) -> dict[str, Any]:
+def _get_popen_kwargs(parallel: bool) -> Dict[str, Any]:
     subprocess_kwargs = {'shell': True, 'env': _get_patched_environ()}
 
     if parallel:

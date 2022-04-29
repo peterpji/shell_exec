@@ -1,10 +1,11 @@
 import sys
 from contextlib import contextmanager
+from typing import List
 import unittest
 from unittest.mock import MagicMock, patch
 
 
-def patch_input(inputs: list[str]):
+def patch_input(inputs: List[str]):
     sys.argv = [sys.argv[0]] + inputs
 
 

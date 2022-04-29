@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from exec.command import Command
 
@@ -15,7 +15,7 @@ def handle_unrecognized_command(commands: Dict[str, Command]):
 
 
 def _parse_command_list_with_help(commands: Dict[str, Command]):
-    def convert_to_cli_output_format(command_keys) -> list[str]:
+    def convert_to_cli_output_format(command_keys) -> List[str]:
         commands_parsed = []
         for command in command_keys:
             if commands[command].description:
