@@ -131,6 +131,8 @@ def _parse_str_command(str_sub_command: str, arguments: Optional[List[str]] = No
     def localize_str_command(str_sub_command):
         if platform.system() == 'Windows':
             str_sub_command = str_sub_command.replace('~', '%userprofile%')
+            str_sub_command = str_sub_command.replace('${PWD}', '%cd%')
+            str_sub_command = str_sub_command.replace('${pwd}', '%cd%')
         return str_sub_command
 
     if not isinstance(str_sub_command, str):

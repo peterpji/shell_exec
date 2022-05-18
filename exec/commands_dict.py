@@ -32,6 +32,7 @@ def get_commands_base():
         'udev-down': f'docker-compose --file={udev_yaml} down',
         'udev-build': f'docker-compose --file={udev_yaml} build',
         'udev-compose': f'docker-compose --file={udev_yaml}',
+        'udev-here': 'docker run --volume=${PWD}:/docker_mount/code --rm -it --name=udev ubuntu_dev_shell bash',
         # Other
         'test-print': Command(
             command='echo Working', description='Echoes "Working". Example of a hello world command.'
