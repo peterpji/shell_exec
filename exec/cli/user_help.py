@@ -10,7 +10,11 @@ def print_help(commands: Dict[str, Command]):
     print('For more information, use flag --help\n')
 
 
-def handle_unrecognized_command(commands: Dict[str, Command]):
+def handle_unrecognized_command(command_name: str, commands: Dict[str, Command]):
+    similar_commands = {k: v for k, v in commands.items() if command_name in k}
+    if similar_commands:
+        print(f'Unrecognized command. Similar commands: {_parse_command_list_with_help(similar_commands)}\n')
+        return
     print(f'Unrecognized command. Available commands: {_parse_command_list_with_help(commands)}\n')
 
 

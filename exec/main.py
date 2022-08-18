@@ -28,7 +28,7 @@ def main():
         return
 
     if arguments.command_name not in commands:
-        handle_unrecognized_command(commands)
+        handle_unrecognized_command(arguments.command_name, commands)
         return
 
     rename_terminal_title(arguments.command_name)
