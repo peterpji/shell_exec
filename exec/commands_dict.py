@@ -25,15 +25,19 @@ def get_commands_base():
 
     commands = {
         # Docker
-        'udev': 'docker attach ubuntu-dev',
-        'udev-bash': 'docker exec -it ubuntu-dev /bin/bash',
-        'udev-exec': 'docker exec -it ubuntu-dev',
-        'udev-up': f'docker-compose --file={udev_yaml} up -d --force-recreate --always-recreate-deps',
-        'udev-down': f'docker-compose --file={udev_yaml} down',
-        'udev-build': f'docker-compose --file={udev_yaml} build',
-        'udev-compose': f'docker-compose --file={udev_yaml}',
+        'udev': f'docker-compose --file={udev_yaml}',
         'udev-here': 'docker run --volume=${PWD}:/docker_mount/code --rm -it --name=udev ubuntu_dev_shell bash',
+        'udev-attach': 'docker attach ubuntu-dev',
+        'udev-logs': 'docker logs -f --tail 10 ubuntu-dev',
+        'udev-exec': 'docker exec -it ubuntu-dev',
         # Other
+        'git-update': Command(
+            command=['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
+            description='Shortcut for pulling git master with stashing',
+        ),
+    }
+
+    test_commands = {
         'test-print': Command(
             command='echo Working', description='Echoes "Working". Example of a hello world command.'
         ),
@@ -58,10 +62,6 @@ def get_commands_base():
                 'echo Hi, am I interrupting?',
             ]
         ),
-        'git-update': Command(
-            command=['git checkout master', 'git stash', 'git pull', 'git stash pop', 'git branch --merged'],
-            description='Shortcut for pulling git master with stashing',
-        ),
     }
 
-    return commands
+    return {**commands, **test_commands}
