@@ -13,7 +13,7 @@ def patch_input(inputs: List[str]):
 def set_commands_base(commands_base):
     get_commands_base_mock = MagicMock()
     get_commands_base_mock.return_value = commands_base
-    patcher = patch('exec.get_commands_parsed.get_commands_base', new=get_commands_base_mock)
+    patcher = patch('src.get_commands_parsed.get_commands_base', new=get_commands_base_mock)
     try:
         patcher.start()
         yield
@@ -24,5 +24,5 @@ def set_commands_base(commands_base):
 class BaseTestClass(unittest.TestCase):
     def setUp(self) -> None:
         self.mock_shell = MagicMock()
-        patch('exec.str_sub_command.str_sub_command.Popen', self.mock_shell).start()
+        patch('src.str_sub_command.str_sub_command.Popen', self.mock_shell).start()
         return super().setUp()

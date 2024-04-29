@@ -6,7 +6,7 @@ from subprocess import PIPE, Popen
 from types import FunctionType, MethodType
 from typing import Any, Callable, Dict, Optional, Union
 
-from exec.str_sub_command.printer import ShellPrinterWrapper
+from src.str_sub_command.printer import ShellPrinterWrapper
 
 command_low_level_type = Union[FunctionType, MethodType, str, list]
 

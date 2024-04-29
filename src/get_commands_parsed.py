@@ -1,9 +1,9 @@
 import os.path
 from typing import Dict
 
-from exec.command import Command
-from exec.commands_dict import get_commands_base
-from exec.saved_commands import add_saved_commands_functionality
+from src.command import Command
+from src.commands_dict import get_commands_base
+from src.saved_commands import add_saved_commands_functionality
 
 FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 

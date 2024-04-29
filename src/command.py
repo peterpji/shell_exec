@@ -5,7 +5,7 @@ from multiprocessing import Process
 from types import FunctionType, MethodType
 from typing import List, Optional, Union
 
-from exec.str_sub_command.str_sub_command import run_str_sub_command
+from src.str_sub_command.str_sub_command import run_str_sub_command
 
 command_low_level_type = Union[FunctionType, MethodType, str, list]
 

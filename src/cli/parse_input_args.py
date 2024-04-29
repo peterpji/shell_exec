@@ -2,7 +2,7 @@ import argparse
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from exec.command import Command
+from src.command import Command
 
 
 @dataclass

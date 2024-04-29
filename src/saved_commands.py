@@ -2,7 +2,7 @@ import json
 import os
 from typing import Dict, Tuple
 
-from exec.command import Command  # pylint: disable=unused-import # Used in type annotations
+from src.command import Command  # pylint: disable=unused-import # Used in type annotations
 
 FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 SAVED_COMMANDS_PATH = os.path.join(FILE_DIR, 'saved_commands.json')

@@ -1,7 +1,7 @@
 import os.path
 from time import sleep
 
-from exec.command import Command
+from src.command import Command
 
 FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 

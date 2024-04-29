@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from exec.command import Command
+from src.command import Command
 
 
 def print_help(commands: Dict[str, Command]):

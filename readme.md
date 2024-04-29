@@ -3,9 +3,9 @@ This project aims to act as an easily customizable shell command tool that is ca
 It can run workflows of multiple commands with arguments such running commands in parallel and stopping or not stopping when a command returns with an error code.
 
 # Quick start
-1) Run "python -m exec.main" to get the help text and list of available commands.
-2) To run a command, write e.g. "python -m exec.main test-print"
-3) To view what a command would execute, write e.g. "python -m exec.main test-print --print"
+1) Run "python -m src.main" to get the help text and list of available commands.
+2) To run a command, write e.g. "python -m src.main test-print"
+3) To view what a command would execute, write e.g. "python -m src.main test-print --print"
 4) Open generate_commands.py, use some existing command as a template and start automating your tasks!
 
 # Config

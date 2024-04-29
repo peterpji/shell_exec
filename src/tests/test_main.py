@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import patch
 
-from exec.command import Command
-from exec.main import main
-from exec.tests.utils import BaseTestClass, set_commands_base, patch_input
+from src.command import Command
+from src.main import main
+from src.tests.utils import BaseTestClass, set_commands_base, patch_input
 
 
 class TestBasicFunctionality(BaseTestClass):

@@ -1,4 +1,4 @@
-from exec.command import Command
+from src.command import Command
 
 
 def ask_exec_confirmation(command: Command):
