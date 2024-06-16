@@ -10,11 +10,11 @@ SAVED_COMMANDS_PATH = os.path.join(FILE_DIR, 'saved_commands.json')
 
 def add_saved_commands_functionality(commands_dict: Dict[str, Command]):
     saved_commands_dict = _load_saved_commands()
-    saved_commands_management = _get_saved_commands_management_commands()
+    saved_commands_management = _get_management_commands()
     return {**commands_dict, **saved_commands_dict, **saved_commands_management}
 
 
-def _get_saved_commands_management_commands():
+def _get_management_commands():
     use_commands = {
         'save-command': Command(
             command=_save_command,

@@ -20,35 +20,6 @@ It does not automatically validate shell inputs and thus should only be used loc
 Otherwise this opens up a shell command injection vulnerability.
 
 
-# Program architecture (aspirational diagram)
-```mermaid
-classDiagram
-Command --> SubCommandFactory
-SubCommandFactory --> SubCommandInterface
-SubCommandInterface --> Printer
-
-Command : command_primitive command
-Command : str[] arguments
-Command : SubCommandFactory factory
-Command : bool parallel
-Command : bool except_return_status
-Command : str description
-Command : execute()
-Command : __repr__()
-
-SubCommandFactory : bool parallel
-SubCommandFactory : bool except_return_status
-SubCommandFactory : produce(command_primitive sub_command)
-
-SubCommandInterface : SubCommandFactory factory
-SubCommandInterface : any command
-SubCommandInterface : execute()
-
-SubCommandInterface <|-- StrSubCommand
-SubCommandInterface <|-- ListSubCommand
-SubCommandInterface <|-- PythonNativeSubCommand
-```
-
 # Other notes
 ## NPM code quality setup
 "devDependencies": {

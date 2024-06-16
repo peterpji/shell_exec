@@ -102,7 +102,7 @@ class Command:
 
         raise ValueError(f'Unknown command type {type(sub_command)}: {sub_command}')
 
-    def __repr__(self, sub_command: command_low_level_type = None) -> str:
+    def __repr__(self, sub_command: command_low_level_type | None = None) -> str:
         command = sub_command or self.command
 
         if isinstance(command, list):
@@ -121,8 +121,7 @@ class Command:
             return f'Python function: {self.command}; Args: {self.arguments}'
 
         if isinstance(command, str):
-            command = _parse_str_command(command, self.arguments)
-            return command
+            return _parse_str_command(command, self.arguments)
 
         raise ValueError(f'Unknown command type: {type(command)}')
 
